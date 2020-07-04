@@ -1,6 +1,10 @@
+mod reducer;
+mod store;
+mod node;
 mod utils;
 
 use wasm_bindgen::prelude::*;
+use web_sys;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -25,4 +29,5 @@ macro_rules! console_log {
 #[wasm_bindgen]
 pub fn hi() {
     console_log!("hi!");
+
 }
