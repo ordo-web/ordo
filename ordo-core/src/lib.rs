@@ -1,8 +1,8 @@
-mod ordo;
+mod node;
+pub mod ordo;
 mod prime;
 mod reducer;
 mod store;
-mod node;
 mod utils;
 
 use wasm_bindgen::prelude::*;
@@ -15,7 +15,7 @@ use web_sys;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
+extern "C" {
     // Use `js_namespace` here to bind `console.log(..)` instead of just
     // `log(..)`
     #[wasm_bindgen(js_namespace = console)]
@@ -31,5 +31,10 @@ macro_rules! console_log {
 #[wasm_bindgen]
 pub fn hi() {
     console_log!("hi!");
-
 }
+
+// Re-exports
+pub use ordo::Ordo;
+pub use serde::Deserialize;
+pub use serde::Serialize;
+pub use serde_json::value::Value;

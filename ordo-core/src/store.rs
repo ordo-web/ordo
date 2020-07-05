@@ -1,12 +1,25 @@
-use serde_json::value::{Value, Map};
 use serde::ser::Serialize;
+use serde_json::value::{Map, Value};
 
 pub trait Store {
     fn get_state(&self) -> Value;
 }
 
+pub fn build_single_store<State: Copy + Serialize, Param>(
+    state: State,
+    actions: Vec<String>,
+    reducer: fn(&State, String, Option<&Param>) -> State,
+    param: Option<&Param>,
+) -> SingleStore<State, Param> {
+    SingleStore {
+        state,
+        actions,
+        reducer,
+        param,
+    }
+}
 
-struct SingleStore<'a, State: Copy + Serialize, Param> {
+pub struct SingleStore<'a, State: Copy + Serialize, Param> {
     state: State,
     actions: Vec<String>,
     reducer: fn(&'a State, String, Option<&'a Param>) -> State,
@@ -19,9 +32,7 @@ impl<'a, State: Copy + Serialize, Param> Store for SingleStore<'a, State, Param>
     }
 }
 
-
-
-struct CombinedStore<'a, State: Copy + Serialize, Param>  {
+pub struct CombinedStore<'a, State: Copy + Serialize, Param> {
     stores: Vec<(String, SingleStore<'a, State, Param>)>,
 }
 
@@ -35,12 +46,3 @@ impl<'a, State: Copy + Serialize, Param> Store for CombinedStore<'a, State, Para
         Value::from(complete_state)
     }
 }
-
-
-
-
-
-
-
-
-
