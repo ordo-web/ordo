@@ -3,8 +3,9 @@ use wasm_bindgen::prelude::*;
 pub trait Reducer {}
 
 pub struct WasmReducer<'a, State, Param> {
-    state: &'a State,
-    param: &'a Option<Param>
+    state: State,
+    reducer: fn(&State, String, Option<&'a Param>) -> State,
+    param: Option<&'a Param>
 }
 
 impl<'a, State, Param> Reducer for WasmReducer<'a, State, Param> {}

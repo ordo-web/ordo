@@ -1,3 +1,5 @@
+mod ordo;
+mod prime;
 mod reducer;
 mod store;
 mod node;

@@ -1,22 +1,27 @@
-use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
-pub struct Store {
-
-}
-
-impl Store {
-    pub fn createStore() {
-
-    }
+pub trait Store {
+    fn print(&self);
 }
 
 
-#[wasm_bindgen]
-impl Store {
-
-    #[wasm_bindgen(constructor)]
-    pub fn new() -> Store {
-        Store {}
-    }
+struct SingleStore<'a, State, Param> {
+    state: State,
+    actions: Vec<String>,
+    reducer: fn(&'a State, String, Option<&'a Param>) -> State,
+    param: Option<&'a Param>,
 }
+
+
+
+struct CombinedStore<'a, State, Param>  {
+    stores: Vec<(String, SingleStore<'a, State, Param>)>,
+}
+
+
+
+
+
+
+
+
+
