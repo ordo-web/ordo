@@ -5,6 +5,8 @@ pub trait Store {
     fn get_state(&self) -> Value;
 }
 
+// TODO Param => Option<Rc<Param>>
+
 pub fn build_single_store<State: Copy + Serialize, Param>(
     state: State,
     actions: Vec<String>,
