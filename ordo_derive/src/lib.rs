@@ -4,14 +4,17 @@ extern crate syn;
 extern crate quote;
 
 use proc_macro::TokenStream;
-use serde_json::value::Value;
 
 #[proc_macro_derive(Ordo)]
 pub fn ordo_derive(input: TokenStream) -> TokenStream {
     // Construct a represntation of Rust code as a syntax tree
     // that we can manipulate
 
+    println!("{:?}", &input);
+
     let ast = syn::parse(input).unwrap();
+
+    println!("{:?}", &ast);
 
     // Build the trait implementation
     ordo_macro(&ast)
@@ -28,6 +31,8 @@ pub fn ordo_derive(input: TokenStream) -> TokenStream {
 //      payload: payload
 //  }
 // }
+
+// TODO create js enums
 
 fn ordo_macro(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
