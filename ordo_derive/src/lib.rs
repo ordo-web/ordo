@@ -5,7 +5,7 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
-#[proc_macro_derive(Ordo)]
+#[proc_macro_derive(Action)]
 pub fn ordo_derive(input: TokenStream) -> TokenStream {
     // Construct a represntation of Rust code as a syntax tree
     // that we can manipulate
@@ -44,10 +44,8 @@ fn ordo_macro(ast: &syn::DeriveInput) -> TokenStream {
         //    }
         //}
         //println!("Hello, Macro! My name is {}", stringify!(#name));
-        pub enum Kek {
-            #name,
-            payload( Value )
-        }
+
+        impl Action for #name {}
 
     };
     gen.into()

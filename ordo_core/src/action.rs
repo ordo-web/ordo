@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-pub struct Action {
+/**pub struct Action {
     pub name: String,
     pub payload: Value,
 }
@@ -14,4 +14,6 @@ macro_rules! create_action {
             payload: $payload,
         }
     }};
-}
+}*/
+
+pub trait Action {}
