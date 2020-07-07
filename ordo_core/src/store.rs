@@ -1,6 +1,7 @@
 use crate::action::Action;
 use crate::log;
 use serde::ser::Serialize;
+use serde::Deserialize;
 use serde_json::value::{Map, Value};
 use wasm_bindgen::__rt::core::any::{Any, TypeId};
 
@@ -12,7 +13,11 @@ pub trait Store {
 
 // TODO Param => Option<Rc<Param>>
 
-pub fn build_single_store<State: Copy + Serialize, ActionEnum: Action + Copy, Param>(
+pub fn build_single_store<
+    State: Clone + Serialize + Deserialize<'static>,
+    ActionEnum: Action + Clone,
+    Param,
+>(
     state: State,
     //actions: Vec<Box<dyn Action>>,
     reducer: fn(&State, ActionEnum, Option<&Param>) -> State,
@@ -26,15 +31,22 @@ pub fn build_single_store<State: Copy + Serialize, ActionEnum: Action + Copy, Pa
     }
 }
 
-pub struct SingleStore<State: Copy + Serialize, ActionEnum: Action + Copy, Param> {
+pub struct SingleStore<
+    State: Clone + Serialize + Deserialize<'static>,
+    ActionEnum: Action + Clone,
+    Param,
+> {
     state: State,
     //actions: Vec<Box<dyn Action>>,
     reducer: fn(&State, ActionEnum, Option<&Param>) -> State,
     param: Option<Param>,
 }
 
-impl<State: Copy + Serialize, ActionEnum: Action + Copy + 'static, Param> Store
-    for SingleStore<State, ActionEnum, Param>
+impl<
+        State: Clone + Serialize + Deserialize<'static>,
+        ActionEnum: Action + Clone + 'static,
+        Param,
+    > Store for SingleStore<State, ActionEnum, Param>
 {
     fn get_state(&self) -> Value {
         serde_json::to_value(self.state.clone()).unwrap()
@@ -42,7 +54,7 @@ impl<State: Copy + Serialize, ActionEnum: Action + Copy + 'static, Param> Store
 
     fn dispatch(&self, action: Box<dyn Any>) {
         if let Some(kek) = action.downcast_ref::<ActionEnum>() {
-            let kek: State = (&self.reducer)(&self.state, *kek, None);
+            let kek: State = (&self.reducer)(&self.state, kek.clone(), None);
         } else {
         }
 
@@ -51,11 +63,15 @@ impl<State: Copy + Serialize, ActionEnum: Action + Copy + 'static, Param> Store
     }
 }
 
-pub struct CombinedStore<State: Copy + Serialize, ActionEnum: Action + Copy, Param> {
+pub struct CombinedStore<
+    State: Clone + Serialize + Deserialize<'static>,
+    ActionEnum: Action + Clone,
+    Param,
+> {
     stores: Vec<(String, SingleStore<State, ActionEnum, Param>)>,
 }
 
-impl<State: Copy + Serialize, ActionEnum: Action + Copy, Param> Store
+impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + Clone, Param> Store
     for CombinedStore<State, ActionEnum, Param>
 {
     fn get_state(&self) -> Value {

@@ -1,9 +1,11 @@
 extern crate proc_macro;
+extern crate proc_macro2;
 extern crate syn;
 #[macro_use]
 extern crate quote;
 
 use proc_macro::TokenStream;
+use proc_macro2::TokenStream as TokenStream2;
 
 #[proc_macro_derive(Action)]
 pub fn ordo_derive(input: TokenStream) -> TokenStream {
@@ -45,16 +47,25 @@ fn ordo_macro(ast: &syn::DeriveInput) -> TokenStream {
         //}
         //println!("Hello, Macro! My name is {}", stringify!(#name));
 
-        impl Action for #name {}
-
-        impl Copy for #name {}
+        /**impl Copy for #name{}
 
         impl Clone for #name {
             fn clone(&self) -> Self {
                 *self
             }
-        }
+        }*/
 
+        impl Action for #name {}
     };
     gen.into()
+}
+
+#[proc_macro_attribute]
+pub fn action(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input: TokenStream2 = item.into();
+    let output = quote! {
+        #[derive(Action, Clone)]
+        #input
+    };
+    output.into()
 }

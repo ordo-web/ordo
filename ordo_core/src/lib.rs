@@ -40,8 +40,8 @@ pub fn hi() {
 }
 
 pub fn create_store<
-    State: 'static + Copy + Serialize,
-    ActionEnum: 'static + Action + Copy,
+    State: 'static + Clone + Serialize + Deserialize<'static>,
+    ActionEnum: 'static + Action + Clone,
     Param: 'static,
 >(
     state: State,
@@ -54,4 +54,5 @@ pub fn create_store<
 }
 
 // Re-exports
+use serde::Deserialize;
 pub use serde_json::value::Value;
