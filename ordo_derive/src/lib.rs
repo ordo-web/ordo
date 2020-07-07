@@ -47,6 +47,14 @@ fn ordo_macro(ast: &syn::DeriveInput) -> TokenStream {
 
         impl Action for #name {}
 
+        impl Copy for #name {}
+
+        impl Clone for #name {
+            fn clone(&self) -> Self {
+                *self
+            }
+        }
+
     };
     gen.into()
 }
