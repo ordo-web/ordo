@@ -20,7 +20,7 @@ pub fn build_single_store<
 >(
     state: State,
     //actions: Vec<Box<dyn Action>>,
-    reducer: fn(&State, ActionEnum, Option<&Param>) -> State,
+    reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
 ) -> SingleStore<State, ActionEnum, Param> {
     SingleStore {
@@ -38,7 +38,7 @@ pub struct SingleStore<
 > {
     state: State,
     //actions: Vec<Box<dyn Action>>,
-    reducer: fn(&State, ActionEnum, Option<&Param>) -> State,
+    reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
 }
 
@@ -54,7 +54,7 @@ impl<
 
     fn dispatch(&self, action: Box<dyn Any>) {
         if let Some(kek) = action.downcast_ref::<ActionEnum>() {
-            let kek: State = (&self.reducer)(&self.state, kek.clone(), None);
+            let kek: State = (&self.reducer)(&self.state, kek.clone(), &self.param);
         } else {
         }
 

@@ -46,8 +46,8 @@ pub fn create_store<
 >(
     state: State,
     //actions: Vec<String>,
-    reducer: fn(&State, ActionEnum, Option<&Param>) -> State,
-    param: std::option::Option<Param>,
+    reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
+    param: Option<Param>,
 ) -> PrimeNode {
     let store = build_single_store(state, reducer, param);
     build_prime_node(store)

@@ -69,3 +69,13 @@ pub fn action(_attr: TokenStream, item: TokenStream) -> TokenStream {
     };
     output.into()
 }
+
+#[proc_macro_attribute]
+pub fn state(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let input: TokenStream2 = item.into();
+    let output = quote! {
+        #[derive(Clone, Serialize, Deserialize)]
+        #input
+    };
+    output.into()
+}
