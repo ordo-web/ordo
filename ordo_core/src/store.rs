@@ -11,24 +11,30 @@ pub trait Store {
     fn dispatch(&mut self, action: Box<dyn Any>);
 }
 
-// TODO Param => Option<Rc<Param>>
-
-pub fn build_single_store<
+pub(crate) fn build_single_store<
     State: Clone + Serialize + Deserialize<'static>,
     ActionEnum: Action + Clone,
     Param,
 >(
     state: State,
-    //actions: Vec<Box<dyn Action>>,
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
 ) -> SingleStore<State, ActionEnum, Param> {
     SingleStore {
         state,
-        //actions,
         reducer,
         param,
     }
+}
+
+pub(crate) fn build_combined_store<
+    State: Clone + Serialize + Deserialize<'static>,
+    ActionEnum: Action + Clone,
+    Param,
+>(
+    stores: Vec<(String, SingleStore<State, ActionEnum, Param>)>,
+) -> CombinedStore<State, ActionEnum, Param> {
+    CombinedStore { stores }
 }
 
 pub struct SingleStore<
@@ -37,9 +43,22 @@ pub struct SingleStore<
     Param,
 > {
     state: State,
-    //actions: Vec<Box<dyn Action>>,
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
+}
+
+impl<
+        State: Clone + Serialize + Deserialize<'static>,
+        ActionEnum: Action + Clone + 'static,
+        Param,
+    > SingleStore<State, ActionEnum, Param>
+{
+    fn dispatch_internal(&mut self, action: &Box<dyn Any>) {
+        if let Some(action) = action.downcast_ref::<ActionEnum>() {
+            let new_state: State = (&self.reducer)(&self.state, action.clone(), &self.param);
+            self.state = new_state;
+        }
+    }
 }
 
 impl<
@@ -53,10 +72,7 @@ impl<
     }
 
     fn dispatch(&mut self, action: Box<dyn Any>) {
-        if let Some(kek) = action.downcast_ref::<ActionEnum>() {
-            let new_state: State = (&self.reducer)(&self.state, kek.clone(), &self.param);
-            self.state = new_state;
-        }
+        self.dispatch_internal(&action);
     }
 }
 
@@ -68,8 +84,11 @@ pub struct CombinedStore<
     stores: Vec<(String, SingleStore<State, ActionEnum, Param>)>,
 }
 
-impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + Clone, Param> Store
-    for CombinedStore<State, ActionEnum, Param>
+impl<
+        State: Clone + Serialize + Deserialize<'static>,
+        ActionEnum: 'static + Action + Clone,
+        Param,
+    > Store for CombinedStore<State, ActionEnum, Param>
 {
     fn get_state(&self) -> Value {
         let mut complete_state = Map::new();
@@ -81,6 +100,8 @@ impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + Clone
     }
 
     fn dispatch(&mut self, action: Box<dyn Any>) {
-        unimplemented!()
+        for store in self.stores.iter_mut() {
+            store.1.dispatch_internal(&action);
+        }
     }
 }
