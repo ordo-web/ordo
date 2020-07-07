@@ -8,7 +8,7 @@ use wasm_bindgen::__rt::core::any::{Any, TypeId};
 pub trait Store {
     fn get_state(&self) -> Value;
 
-    fn dispatch(&self, action: Box<dyn Any>);
+    fn dispatch(&mut self, action: Box<dyn Any>);
 }
 
 // TODO Param => Option<Rc<Param>>
@@ -52,14 +52,11 @@ impl<
         serde_json::to_value(self.state.clone()).unwrap()
     }
 
-    fn dispatch(&self, action: Box<dyn Any>) {
+    fn dispatch(&mut self, action: Box<dyn Any>) {
         if let Some(kek) = action.downcast_ref::<ActionEnum>() {
-            let kek: State = (&self.reducer)(&self.state, kek.clone(), &self.param);
-        } else {
+            let new_state: State = (&self.reducer)(&self.state, kek.clone(), &self.param);
+            self.state = new_state;
         }
-
-        //print_type_of(&action);
-        //unimplemented!()
     }
 }
 
@@ -83,11 +80,7 @@ impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + Clone
         Value::from(complete_state)
     }
 
-    fn dispatch(&self, action: Box<dyn Any>) {
+    fn dispatch(&mut self, action: Box<dyn Any>) {
         unimplemented!()
     }
-}
-
-fn print_type_of<T>(_: &T) {
-    log(&format!("{}", std::any::type_name::<T>()));
 }

@@ -17,7 +17,7 @@ impl PrimeNode {
         self.store.get_state()
     }
 
-    pub fn dispatch(&self, action: impl Action + 'static) {
+    pub fn dispatch(&mut self, action: impl Action + 'static) {
         let action = Box::new(action);
         self.store.dispatch(action);
     }
