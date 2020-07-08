@@ -61,7 +61,7 @@ pub fn create_store<
 macro_rules! create_combined_store {
     ( $( $store: expr ),* ) => {
         {
-            let mut stores = Vec::new();
+            let mut stores: Vec<Box<(String, $crate::store::SingleStore<_, _, _>)>> = Vec::new();
             $(
                 stores.push($store);
             )*
@@ -78,7 +78,7 @@ macro_rules! create_combined_store {
 macro_rules! reducer {
     ( $name:expr, $state:expr, $reducer:expr, $param:expr ) => {{
         let tmp = $crate::store::__build_single_store($state, $reducer, $param);
-        let store = (String::from($name), tmp);
+        let store = Box::new((String::from($name), tmp));
         store
     }};
 }

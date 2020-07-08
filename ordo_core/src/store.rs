@@ -83,7 +83,7 @@ pub struct CombinedStore<
     ActionEnum: Action + Clone,
     Param,
 > {
-    stores: Vec<(String, SingleStore<State, ActionEnum, Param>)>,
+    stores: Vec<Box<(String, SingleStore<State, ActionEnum, Param>)>>,
 }
 
 impl<
