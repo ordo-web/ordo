@@ -1,8 +1,8 @@
 pub mod action;
 mod node;
-mod prime;
+pub mod prime;
 mod reducer;
-mod store;
+pub mod store;
 mod utils;
 
 use wasm_bindgen::prelude::*;
@@ -10,7 +10,7 @@ use web_sys;
 
 use crate::action::Action;
 use crate::prime::build_prime_node;
-use crate::store::{build_single_store, Store};
+use crate::store::__build_single_store;
 use serde::ser::Serialize;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -49,30 +49,40 @@ pub fn create_store<
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
 ) -> PrimeNode {
-    let store = build_single_store(state, reducer, param);
+    let store = __build_single_store(state, reducer, param);
     build_prime_node(store)
 }
 
-/**
+// To debug macros use ` cargo rustc -- -Z external-macro-backtrace `
+// The `-Z external-macro-backtrace` is deprecated
+// See: https://github.com/rust-lang/rust/issues/49535
+
 #[macro_export]
 macro_rules! create_combined_store {
-    (
-        $(
-            { $name:expr; $state:expr; $reducer:item; $param:expr }
-        ),*
-    ) => {
-        // <(String, $crate::store::CombinedStore)>
-        let mut stores: Vec<(String, $crate::store::CombinedStore)> = Vec::new();
-        //$(
-        let store = $crate::store::build_single_store($state, $reducer, $param);
-        stores.push(($name, store));
-        //)*
-        let combined_store = $crate::store::build_combined_store(stores);
-        // Assign type to annotate return value of macro
-        let prime_node: $crate::prime::PrimeNode = $crate::prime::build_prime_node(combined_store);
-        prime_node
+    ( $( $store: expr ),* ) => {
+        {
+            let mut stores = Vec::new();
+            $(
+                stores.push($store);
+            )*
+            let combined_store = $crate::store::__build_combined_store(stores);
+            // Assign type to annotate return value of macro
+            let mut prime_node: $crate::prime::PrimeNode =
+                $crate::prime::build_prime_node(combined_store);
+            prime_node
+        }
     };
-}*/
+}
+
+#[macro_export]
+macro_rules! reducer {
+    ( $name:expr, $state:expr, $reducer:expr, $param:expr ) => {{
+        let tmp = $crate::store::__build_single_store($state, $reducer, $param);
+        let store = (String::from($name), tmp);
+        store
+    }};
+}
+
 // Re-exports
 pub use crate::prime::PrimeNode;
 use serde::Deserialize;

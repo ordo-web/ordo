@@ -11,7 +11,8 @@ pub trait Store {
     fn dispatch(&mut self, action: Box<dyn Any>);
 }
 
-pub(crate) fn build_single_store<
+#[doc(hidden)]
+pub fn __build_single_store<
     State: Clone + Serialize + Deserialize<'static>,
     ActionEnum: Action + Clone,
     Param,
@@ -27,7 +28,8 @@ pub(crate) fn build_single_store<
     }
 }
 
-pub(crate) fn build_combined_store<
+#[doc(hidden)]
+pub fn __build_combined_store<
     State: Clone + Serialize + Deserialize<'static>,
     ActionEnum: Action + Clone,
     Param,
