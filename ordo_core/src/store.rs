@@ -4,10 +4,15 @@ use serde::Deserialize;
 use serde_json::value::{Map, Value};
 use wasm_bindgen::__rt::core::any::{Any, TypeId};
 
+// TODO Remove param and convert reducer fn to reducer Fn (Closure).
+// This way values can be easily moved into (like via RC).
+
 pub trait Store {
+    // Returns the current state.
     fn get_state(&self) -> Value;
 
-    fn dispatch(&mut self, action: Box<dyn Any>);
+    // Dispatches an Action which should result in called Reducers.
+    fn dispatch(&mut self, action: Box<dyn Any>) -> bool;
 }
 
 #[doc(hidden)]
@@ -41,11 +46,13 @@ pub struct SingleStore<State: Clone + Serialize + Deserialize<'static>, ActionEn
 impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + 'static, Param>
     SingleStore<State, ActionEnum, Param>
 {
-    fn dispatch_internal(&mut self, action: &Box<dyn Any>) {
+    fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
         if let Some(action) = action.downcast_ref::<ActionEnum>() {
             let new_state: State = (&self.reducer)(&self.state, action.clone(), &self.param);
             self.state = new_state;
+            return true;
         }
+        false
     }
 }
 
@@ -56,8 +63,8 @@ impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + 'stat
         serde_json::to_value(self.state.clone()).unwrap()
     }
 
-    fn dispatch(&mut self, action: Box<dyn Any>) {
-        self.dispatch_internal(&action);
+    fn dispatch(&mut self, action: Box<dyn Any>) -> bool {
+        self.dispatch_internal(&action)
     }
 }
 
@@ -75,10 +82,14 @@ impl Store for CombinedStore {
         Value::from(complete_state)
     }
 
-    fn dispatch(&mut self, action: Box<dyn Any>) {
+    fn dispatch(&mut self, action: Box<dyn Any>) -> bool {
+        let mut flag = false;
         for store in self.stores.iter_mut() {
-            store.dispatch_internal(&action);
+            if store.dispatch_internal(&action) && !flag {
+                flag = true;
+            }
         }
+        flag
     }
 }
 
@@ -91,7 +102,7 @@ impl Store for CombinedStore {
 pub trait StoreUtility {
     fn serialize(&self) -> (String, Value);
 
-    fn dispatch_internal(&mut self, action: &Box<dyn Any>);
+    fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool;
 }
 
 impl<
@@ -105,7 +116,7 @@ impl<
         (self.0.clone(), state)
     }
 
-    fn dispatch_internal(&mut self, action: &Box<dyn Any>) {
-        self.1.dispatch_internal(&action);
+    fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
+        self.1.dispatch_internal(&action)
     }
 }

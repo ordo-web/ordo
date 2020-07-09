@@ -9,9 +9,13 @@ use wasm_bindgen::prelude::*;
 use web_sys;
 
 use crate::action::Action;
-use crate::prime::build_prime_node;
+use crate::prime::__build_prime_node;
 use crate::store::__build_single_store;
-use serde::ser::Serialize;
+
+// Re-exports
+pub use crate::prime::PrimeNode;
+pub use serde::{Deserialize, Serialize};
+pub use serde_json::value::Value;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -50,7 +54,7 @@ pub fn create_store<
     param: Option<Param>,
 ) -> PrimeNode {
     let store = __build_single_store(state, reducer, param);
-    build_prime_node(store)
+    __build_prime_node(store)
 }
 
 // To debug macros use ` cargo rustc -- -Z external-macro-backtrace `
@@ -68,7 +72,7 @@ macro_rules! create_combined_store {
             let combined_store = $crate::store::__build_combined_store(stores);
             // Assign type to annotate return value of macro
             let mut prime_node: $crate::prime::PrimeNode =
-                $crate::prime::build_prime_node(combined_store);
+                $crate::prime::__build_prime_node(combined_store);
             prime_node
         }
     };
@@ -82,8 +86,3 @@ macro_rules! reducer {
         store
     }};
 }
-
-// Re-exports
-pub use crate::prime::PrimeNode;
-use serde::Deserialize;
-pub use serde_json::value::Value;
