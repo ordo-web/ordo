@@ -1,12 +1,10 @@
 pub mod action;
 mod node;
 pub mod prime;
-mod reducer;
 pub mod store;
 mod utils;
 
 use wasm_bindgen::prelude::*;
-use web_sys;
 
 use crate::action::Action;
 use crate::prime::__build_prime_node;
@@ -14,6 +12,7 @@ use crate::store::__build_single_store;
 
 // Re-exports
 pub use crate::prime::PrimeNode;
+use crate::utils::set_panic_hook;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::value::Value;
 
@@ -53,6 +52,7 @@ pub fn create_store<
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
 ) -> PrimeNode {
+    set_panic_hook();
     let store = __build_single_store(state, reducer, param);
     __build_prime_node(store)
 }

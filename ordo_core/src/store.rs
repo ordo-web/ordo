@@ -2,7 +2,7 @@ use crate::action::Action;
 use serde::ser::Serialize;
 use serde::Deserialize;
 use serde_json::value::{Map, Value};
-use wasm_bindgen::__rt::core::any::{Any, TypeId};
+use wasm_bindgen::__rt::core::any::Any;
 
 // TODO Remove param and convert reducer fn to reducer Fn (Closure).
 // This way values can be easily moved into (like via RC).
