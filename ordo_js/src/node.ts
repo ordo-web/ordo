@@ -1,8 +1,8 @@
-import {Node} from "ordo-core";
+import {Node as RepNode } from "ordo-core";
 
-export class Class {
-    node: Node;
+export class Node {
+    node: RepNode;
     constructor(worker: Worker) {
-        this.node = new Node(worker);
+        this.node = new RepNode(worker);
     }
 }

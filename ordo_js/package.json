@@ -2,9 +2,11 @@
   "name": "@ordo!/ordo",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/ordo.js",
   "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "scripts": {
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -15,5 +17,12 @@
   "license": "MIT",
   "dependencies": {
     "ordo-core": "file:../ordo_core/pkg"
+  },
+  "devDependencies": {
+    "source-map-loader": "^1.0.1",
+    "ts-loader": "^8.0.0",
+    "typescript": "^3.9.6",
+    "webpack": "^5.0.0-beta.22",
+    "webpack-cli": "^3.3.12"
   }
 }
