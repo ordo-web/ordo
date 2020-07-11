@@ -48,7 +48,6 @@ pub fn create_store<
     Param: 'static,
 >(
     state: State,
-    //actions: Vec<String>,
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
 ) -> PrimeNode {
