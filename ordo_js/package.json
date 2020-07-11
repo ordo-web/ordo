@@ -1,0 +1,19 @@
+{
+  "name": "@ordo!/ordo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ordo",
+    "state-management"
+  ],
+  "author": "Kacper Urbaniec",
+  "license": "MIT",
+  "dependencies": {
+    "ordo-core": "file:../ordo_core/pkg"
+  }
+}

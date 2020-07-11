@@ -1,22 +1,29 @@
+use crate::log;
+use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::MessageEvent;
+use web_sys::Worker;
 
 #[wasm_bindgen]
 pub struct Node {
-
-
+    ctx: Worker,
+    onmessage: Closure<dyn FnMut(MessageEvent)>,
 }
 
-impl Node {
-
-}
-
+impl Node {}
 
 #[wasm_bindgen]
 impl Node {
-
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Node {
-        Node {}
+    pub fn new(ctx: Worker) -> Node {
+        let cb = Closure::wrap(Box::new(|event: MessageEvent| {
+            let data: JsValue = event.data();
+            log(&format!("Received data: {:?}", &data));
+        }) as Box<dyn FnMut(MessageEvent)>);
+
+        ctx.set_onmessage(Some(cb.as_ref().unchecked_ref()));
+
+        Node { ctx, onmessage: cb }
     }
 }
-

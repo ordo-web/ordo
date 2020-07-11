@@ -1,2 +1,5 @@
 target
 .idea
+pkg
+dist
+node_modules
