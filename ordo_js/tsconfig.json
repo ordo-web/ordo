@@ -5,6 +5,7 @@
         "noImplicitAny": true,
         "module": "commonjs",
         "target": "esNext",
-        "declaration": true
+        "declaration": true,
+        "allowJs": true
     }
 }

@@ -1,8 +1,11 @@
-import {Node as RepNode } from "ordo-core";
+import {Node as PrimeNode} from "ordo-core";
 
 export class Node {
-    node: RepNode;
+    private node: PrimeNode;
+    private readonly worker: Worker;
     constructor(worker: Worker) {
-        this.node = new RepNode(worker);
+        this.worker = worker;
+        this.node = new PrimeNode(this.worker);
     }
 }
+

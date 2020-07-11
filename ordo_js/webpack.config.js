@@ -22,7 +22,7 @@ module.exports = {
 
     module: {
         rules: [
-            {
+            /*{
                 test: /\.ts(x?)$/,
                 exclude: /node_modules/,
                 use: [
@@ -30,6 +30,13 @@ module.exports = {
                         loader: "ts-loader"
                     }
                 ]
+            },*/
+            {
+                test: /\.(ts|js)x?$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader'
+                },
             },
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             {
@@ -40,10 +47,8 @@ module.exports = {
         ]
     },
 
-    // Allow async wasm imports
-    // See: https://stackoverflow.com/a/62821582/12347616
     experiments: {
         asyncWebAssembly: true,
-        importAsync: true
-    }
+        importAsync: true,
+    },
 };
