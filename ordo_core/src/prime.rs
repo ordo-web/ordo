@@ -1,10 +1,8 @@
 use crate::action::Action;
 use crate::log;
 use crate::store::Store;
-use js_sys::Array;
 use js_sys::Uint8Array;
 use serde_json::value::Value;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 use web_sys::Worker;
 

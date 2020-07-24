@@ -1,4 +1,5 @@
 use crate::log;
+use crate::utils::set_panic_hook;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -17,9 +18,10 @@ impl Node {}
 impl Node {
     #[wasm_bindgen(constructor)]
     pub fn new(ctx: Worker) -> Node {
+        set_panic_hook();
         let cb = Closure::wrap(Box::new(|event: MessageEvent| {
             let data: JsValue = event.data();
-            log(&format!("Received data: {:?}", &data));
+            console_log!("Received data: {:?}", &data);
         }) as Box<dyn FnMut(MessageEvent)>);
 
         ctx.set_onmessage(Some(cb.as_ref().unchecked_ref()));
