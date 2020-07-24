@@ -1,41 +1,64 @@
 use crate::action::Action;
 use crate::log;
 use crate::store::Store;
+use crate::transport::Transport;
 use js_sys::Uint8Array;
 use serde_json::value::Value;
+use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsValue;
+use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
+use wasm_bindgen::__rt::std::rc::{Rc, Weak};
+use web_sys::MessageEvent;
 use web_sys::Worker;
 
+pub type RefStore = Rc<RefCell<dyn Store + 'static>>;
+
 pub struct PrimeNode {
-    store: Box<dyn Store + 'static>,
-    subscriptions: Vec<Box<dyn Fn(&Value)>>,
-    ctx: Worker,
+    store: RefStore,
+    subscriptions: RefCell<Vec<Box<dyn Fn(&Value)>>>,
+    ctx: Rc<Worker>,
+    transport: Cell<Option<Transport>>,
+    _onmessage: Closure<dyn FnMut(MessageEvent)>,
 }
 
 #[doc(hidden)]
-pub fn __build_prime_node(store: impl Store + 'static) -> PrimeNode {
-    let ctx = Worker::from(JsValue::from(js_sys::global()));
+pub fn __build_prime_node(store: impl Store + 'static) -> Rc<PrimeNode> {
+    let store = Rc::new(RefCell::new(store));
+
+    let ctx = Rc::new(Worker::from(JsValue::from(js_sys::global())));
     let _ = ctx.post_message(&JsValue::from("CTX here speaking")); // TODO remove later
-    PrimeNode {
-        store: Box::new(store),
-        subscriptions: Vec::new(),
+
+    let cb = Closure::wrap(Box::new(|event: MessageEvent| {
+        let data: JsValue = event.data();
+        console_log!("Received data: {:?}", &data);
+    }) as Box<dyn FnMut(MessageEvent)>);
+
+    let prime_node = Rc::new(PrimeNode {
+        store,
+        subscriptions: RefCell::new(Vec::new()),
         ctx,
-    }
+        transport: Cell::new(None),
+        _onmessage: cb,
+    });
+
+    let transport = Transport::new(prime_node.clone());
+    prime_node.transport.set(Some(transport));
+    prime_node
 }
 
 impl PrimeNode {
     pub fn get_state(&self) -> Value {
-        self.store.get_state()
+        self.store.borrow_mut().get_state()
     }
 
-    pub fn dispatch(&mut self, action: impl Action + 'static) {
+    pub fn dispatch(&self, action: impl Action + 'static) {
         let action = Box::new(action);
         // Check if action is valid
-        if self.store.dispatch(action) {
+        if self.store.borrow_mut().dispatch(action) {
             let state: Value = self.get_state();
             // Trigger subscriptions if they exist
-            if self.subscriptions.len() > 0 {
-                for subscription in self.subscriptions.iter() {
+            if self.subscriptions.borrow().len() > 0 {
+                for subscription in self.subscriptions.borrow_mut().iter() {
                     subscription(&state);
                 }
             }
@@ -78,8 +101,8 @@ impl PrimeNode {
         }
     }
 
-    pub fn subscribe(&mut self, subscription: impl Fn(&Value) + 'static) {
+    pub fn subscribe(&self, subscription: impl Fn(&Value) + 'static) {
         let subscription = Box::new(subscription);
-        self.subscriptions.push(subscription);
+        self.subscriptions.borrow_mut().push(subscription);
     }
 }

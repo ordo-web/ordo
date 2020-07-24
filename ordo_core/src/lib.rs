@@ -1,3 +1,13 @@
+mod transport;
+
+#[macro_use]
+mod macros {
+    macro_rules! console_log {
+    // Note that this is using the `log` function imported above during
+    // `bare_bones`
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+    }
+}
 pub mod action;
 pub mod prime;
 pub mod store;
@@ -14,6 +24,7 @@ pub use crate::prime::PrimeNode;
 use crate::utils::set_panic_hook;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::value::Value;
+use wasm_bindgen::__rt::std::rc::Rc;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -29,13 +40,6 @@ extern "C" {
     fn log(s: &str);
 }
 
-#[macro_use]
-macro_rules! console_log {
-    // Note that this is using the `log` function imported above during
-    // `bare_bones`
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-
 #[wasm_bindgen]
 pub fn hi() {
     console_log!("hi!");
@@ -49,7 +53,7 @@ pub fn create_store<
     state: State,
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
-) -> PrimeNode {
+) -> Rc<PrimeNode> {
     set_panic_hook();
     let store = __build_single_store(state, reducer, param);
     __build_prime_node(store)
@@ -69,7 +73,7 @@ macro_rules! create_combined_store {
             )*
             let combined_store = $crate::store::__build_combined_store(stores);
             // Assign type to annotate return value of macro
-            let mut prime_node: $crate::prime::PrimeNode =
+            let mut prime_node: std::rc::Rc<$crate::prime::PrimeNode> =
                 $crate::prime::__build_prime_node(combined_store);
             prime_node
         }
