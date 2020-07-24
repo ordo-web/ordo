@@ -1,5 +1,3 @@
-mod transport;
-
 #[macro_use]
 mod macros {
     macro_rules! console_log {
@@ -11,6 +9,7 @@ mod macros {
 pub mod action;
 pub mod prime;
 pub mod store;
+mod transport;
 mod utils;
 
 use wasm_bindgen::prelude::*;

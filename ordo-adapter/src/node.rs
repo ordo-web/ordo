@@ -19,6 +19,9 @@ impl Node {
     #[wasm_bindgen(constructor)]
     pub fn new(ctx: Worker) -> Node {
         set_panic_hook();
+
+        // TODO build inner Node Wrapper with Rc, with State and Transport
+
         let cb = Closure::wrap(Box::new(|event: MessageEvent| {
             let data: JsValue = event.data();
             console_log!("Received data: {:?}", &data);

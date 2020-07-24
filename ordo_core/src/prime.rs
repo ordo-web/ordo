@@ -1,44 +1,27 @@
 use crate::action::Action;
-use crate::log;
 use crate::store::Store;
 use crate::transport::Transport;
 use js_sys::Uint8Array;
 use serde_json::value::Value;
-use wasm_bindgen::closure::Closure;
-use wasm_bindgen::JsValue;
 use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
-use wasm_bindgen::__rt::std::rc::{Rc, Weak};
-use web_sys::MessageEvent;
-use web_sys::Worker;
+use wasm_bindgen::__rt::std::rc::Rc;
 
 pub type RefStore = Rc<RefCell<dyn Store + 'static>>;
 
 pub struct PrimeNode {
     store: RefStore,
     subscriptions: RefCell<Vec<Box<dyn Fn(&Value)>>>,
-    ctx: Rc<Worker>,
     transport: Cell<Option<Transport>>,
-    _onmessage: Closure<dyn FnMut(MessageEvent)>,
 }
 
 #[doc(hidden)]
 pub fn __build_prime_node(store: impl Store + 'static) -> Rc<PrimeNode> {
     let store = Rc::new(RefCell::new(store));
 
-    let ctx = Rc::new(Worker::from(JsValue::from(js_sys::global())));
-    let _ = ctx.post_message(&JsValue::from("CTX here speaking")); // TODO remove later
-
-    let cb = Closure::wrap(Box::new(|event: MessageEvent| {
-        let data: JsValue = event.data();
-        console_log!("Received data: {:?}", &data);
-    }) as Box<dyn FnMut(MessageEvent)>);
-
     let prime_node = Rc::new(PrimeNode {
         store,
         subscriptions: RefCell::new(Vec::new()),
-        ctx,
         transport: Cell::new(None),
-        _onmessage: cb,
     });
 
     let transport = Transport::new(prime_node.clone());
@@ -84,6 +67,8 @@ impl PrimeNode {
                 }*/
 
                 let ser = Uint8Array::view(&serialized);
+                // TODO move this to seperate transport function
+                /*
                 let res = self.ctx.post_message(&ser);
                 match res {
                     Ok(_) => {
@@ -92,7 +77,7 @@ impl PrimeNode {
                     Err(err) => {
                         log(&format!("NOT OKKK: {:?}", err));
                     }
-                }
+                }*/
             }
 
             // TODO use deserialization in node
