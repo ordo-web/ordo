@@ -83,7 +83,7 @@ fn generate_code(enum_name: &str, name: &str, has_param: bool) -> String {
 
 // Used to parse idents
 // See: https://stackoverflow.com/a/37784410/12347616
-fn string_between(string: String, begin_pattern: &str, end_pattern: &str) -> String {
+pub fn string_between(string: String, begin_pattern: &str, end_pattern: &str) -> String {
     let start_bytes = string.find(begin_pattern).unwrap_or(0) + 1;
     let end_bytes = string.rfind(end_pattern).unwrap_or(string.len());
     String::from(&string[start_bytes..end_bytes])

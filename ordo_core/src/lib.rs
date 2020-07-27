@@ -5,6 +5,13 @@ mod macros {
     // `bare_bones`
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
     }
+
+    macro_rules! parse_value_to_type {
+        ($val: expr, $name: tt) => {{
+            let res: $name = serde_json::from_value($val).unwrap();
+            res
+        }};
+    }
 }
 pub mod action;
 pub mod prime;

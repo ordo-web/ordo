@@ -2,6 +2,7 @@
 //! to simplify usage.
 
 mod generate;
+mod helper;
 
 extern crate proc_macro;
 extern crate proc_macro2;
@@ -11,6 +12,7 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
+use std::collections::HashMap;
 use syn::Data;
 
 /// Implements the Action trait on an enum.
@@ -30,14 +32,12 @@ fn ordo_macro(ast: syn::DeriveInput) -> TokenStream {
     if let Data::Enum(data) = &ast.data {
         // Generate the js bindings
         generate::generate_js_actions(name, data);
+        // Implement trait
+        let gen = helper::generate_utilities(name, data);
+        gen.into()
     } else {
         panic!("Ordo Error: Only Enums can be annotated with the #[action] macro");
     }
-    // Implement trait
-    let gen = quote! {
-        impl Action for #name {}
-    };
-    gen.into()
 }
 
 /// Implements the Action and Clone traits on an enum.

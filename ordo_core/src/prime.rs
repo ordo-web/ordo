@@ -1,7 +1,10 @@
 use crate::action::Action;
+use crate::log;
 use crate::store::Store;
 use crate::transport::{Transport, TransportWrapper, TransportWrapperMethods};
 use js_sys::Uint8Array;
+use proc_macro2::{Ident, Span};
+use quote::quote;
 use serde_json::value::Value;
 use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
@@ -47,8 +50,21 @@ impl Prime {
                 }
             }
 
-            // TODO ctx send new state
+            let test = serde_json::to_value("Baum").unwrap();
+            let test2 = serde_json::to_value("kek").unwrap();
+            console_log!("Equal?: {}", test.eq(&test2));
 
+            let val: String = serde_json::from_value(test).unwrap();
+
+            let ident = Ident::new("String", Span::call_site());
+
+            let res = quote! { let #ident = serde_json::from_value(test).unwrap(); };
+            console_log!("res?: {}", res);
+
+            //let val = serde_json::from_value(test).unwrap();
+            //let val = parse_value_to_type!(test, "String");
+
+            // TODO ctx send new state
             let serialized = serde_json::to_vec(&state).unwrap();
             unsafe {
                 // Does not work: TypeError: cannot transfer WebAssembly/asm.js ArrayBuffer
