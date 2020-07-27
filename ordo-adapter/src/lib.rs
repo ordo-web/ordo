@@ -1,5 +1,3 @@
-mod transport;
-
 #[macro_use]
 mod macros {
     macro_rules! console_log {
@@ -8,7 +6,10 @@ mod macros {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
     }
 }
+mod adapter;
+mod cache;
 mod node;
+mod transport;
 mod utils;
 
 use wasm_bindgen::prelude::*;

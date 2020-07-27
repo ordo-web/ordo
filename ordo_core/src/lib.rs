@@ -19,10 +19,11 @@ use crate::prime::__build_prime_node;
 use crate::store::__build_single_store;
 
 // Re-exports
-pub use crate::prime::PrimeNode;
+pub use crate::prime::Prime;
 use crate::utils::set_panic_hook;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::value::Value;
+use wasm_bindgen::__rt::core::cell::RefCell;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -52,7 +53,7 @@ pub fn create_store<
     state: State,
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
-) -> Rc<PrimeNode> {
+) -> Rc<Prime> {
     set_panic_hook();
     let store = __build_single_store(state, reducer, param);
     __build_prime_node(store)
@@ -72,7 +73,7 @@ macro_rules! create_combined_store {
             )*
             let combined_store = $crate::store::__build_combined_store(stores);
             // Assign type to annotate return value of macro
-            let mut prime_node: std::rc::Rc<$crate::prime::PrimeNode> =
+            let mut prime_node: $crate::prime::PrimeNode =
                 $crate::prime::__build_prime_node(combined_store);
             prime_node
         }

@@ -1,35 +1,36 @@
 use crate::action::Action;
 use crate::store::Store;
-use crate::transport::Transport;
+use crate::transport::{Transport, TransportWrapper, TransportWrapperMethods};
 use js_sys::Uint8Array;
 use serde_json::value::Value;
 use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
 
 pub type RefStore = Rc<RefCell<dyn Store + 'static>>;
+pub type PrimeNode = Rc<Prime>;
 
-pub struct PrimeNode {
+pub struct Prime {
     store: RefStore,
     subscriptions: RefCell<Vec<Box<dyn Fn(&Value)>>>,
-    transport: Cell<Option<Transport>>,
+    transport: TransportWrapper,
 }
 
 #[doc(hidden)]
-pub fn __build_prime_node(store: impl Store + 'static) -> Rc<PrimeNode> {
+pub fn __build_prime_node(store: impl Store + 'static) -> PrimeNode {
     let store = Rc::new(RefCell::new(store));
 
-    let prime_node = Rc::new(PrimeNode {
+    let prime_node = Rc::new(Prime {
         store,
         subscriptions: RefCell::new(Vec::new()),
-        transport: Cell::new(None),
+        transport: RefCell::new(None),
     });
 
     let transport = Transport::new(prime_node.clone());
-    prime_node.transport.set(Some(transport));
+    prime_node.transport.replace(Some(transport));
     prime_node
 }
 
-impl PrimeNode {
+impl Prime {
     pub fn get_state(&self) -> Value {
         self.store.borrow_mut().get_state()
     }
@@ -67,17 +68,7 @@ impl PrimeNode {
                 }*/
 
                 let ser = Uint8Array::view(&serialized);
-                // TODO move this to seperate transport function
-                /*
-                let res = self.ctx.post_message(&ser);
-                match res {
-                    Ok(_) => {
-                        log("OKKK");
-                    }
-                    Err(err) => {
-                        log(&format!("NOT OKKK: {:?}", err));
-                    }
-                }*/
+                self.transport.get().send(ser);
             }
 
             // TODO use deserialization in node
