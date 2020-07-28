@@ -3,7 +3,7 @@ use crate::prime::PrimeNode;
 use js_sys::Uint8Array;
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{JsValue, JsCast};
 use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
 use web_sys::MessageEvent;
 use web_sys::Worker;
@@ -23,6 +23,7 @@ impl Transport {
         let initialized = RefCell::new(false);
 
         let _onmessage = Transport::build_onmessage(node.clone(), ctx.clone());
+        ctx.set_onmessage(Some(_onmessage.as_ref().unchecked_ref()));
 
         Transport {
             node,
@@ -47,7 +48,7 @@ impl Transport {
     fn build_onmessage(node: PrimeNode, ctx: Rc<Worker>) -> Closure<dyn FnMut(MessageEvent)> {
         Closure::wrap(Box::new(|event: MessageEvent| {
             let data: JsValue = event.data();
-            console_log!("Received data: {:?}", &data);
+            console_log!("Main: Received data: {:?}", &data);
         }) as Box<dyn FnMut(MessageEvent)>)
     }
 }

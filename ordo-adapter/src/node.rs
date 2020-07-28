@@ -1,16 +1,16 @@
-use crate::log;
+use crate::adapter::Adapter;
+use crate::adapter::AdapterNode;
+use crate::sleep;
 use crate::utils::set_panic_hook;
 use js_sys::Function;
-use wasm_bindgen::closure::Closure;
+use js_sys::Promise;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys::MessageEvent;
+use wasm_bindgen_futures::{future_to_promise, JsFuture};
 use web_sys::Worker;
 
 #[wasm_bindgen]
 pub struct Node {
-    ctx: Worker,
-    onmessage: Closure<dyn FnMut(MessageEvent)>,
+    adapter: AdapterNode,
 }
 
 impl Node {}
@@ -20,25 +20,31 @@ impl Node {
     #[wasm_bindgen(constructor)]
     pub fn new(ctx: Worker) -> Node {
         set_panic_hook();
+        Node {
+            adapter: Adapter::new(),
+        }
+    }
 
-        // TODO build inner Node Wrapper with Rc, with State and Transport
-
-        let cb = Closure::wrap(Box::new(|event: MessageEvent| {
-            let data: JsValue = event.data();
-            console_log!("Received data: {:?}", &data);
-        }) as Box<dyn FnMut(MessageEvent)>);
-
-        ctx.set_onmessage(Some(cb.as_ref().unchecked_ref()));
-
-        Node { ctx, onmessage: cb }
+    #[wasm_bindgen(js_name = getState)]
+    pub fn get_state(&self) -> JsValue {
+        self.adapter.get_state()
     }
 
     pub fn dispatch(action: JsValue) {}
 
-    #[wasm_bindgen(js_name = getState)]
-    pub fn get_state() -> JsValue {
-        JsValue::null()
-    }
-
     pub fn subscribe(func: &Function) {}
+
+    pub fn ready(&self) -> Promise {
+        let adapter = self.adapter.clone();
+        future_to_promise(async move {
+            loop {
+                if adapter.initialized() {
+                    break;
+                } else {
+                    let _ = JsFuture::from(sleep(10.0)).await;
+                }
+            }
+            Ok(JsValue::null())
+        })
+    }
 }

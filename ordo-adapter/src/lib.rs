@@ -12,6 +12,7 @@ mod node;
 mod transport;
 mod utils;
 
+use js_sys::Promise;
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -26,4 +27,9 @@ extern "C" {
     // `log(..)`
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+
+    #[wasm_bindgen(
+        inline_js = "export function sleep(ms) { return new Promise((resolve)=> setTimeout(resolve, ms)); }"
+    )]
+    fn sleep(ms: f64) -> Promise;
 }
