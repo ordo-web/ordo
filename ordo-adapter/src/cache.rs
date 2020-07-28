@@ -19,4 +19,8 @@ impl Cache {
             Err(err) => panic!(err),
         }
     }
+    
+    pub(crate) fn update_state(&self, new_state: Value) {
+        self.cache.replace(new_state);
+    }
 }

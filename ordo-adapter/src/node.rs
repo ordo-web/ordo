@@ -21,7 +21,7 @@ impl Node {
     pub fn new(ctx: Worker) -> Node {
         set_panic_hook();
         Node {
-            adapter: Adapter::new(),
+            adapter: Adapter::new(ctx),
         }
     }
 

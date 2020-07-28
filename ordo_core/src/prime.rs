@@ -1,7 +1,8 @@
-use crate::action::Action;
+use crate::action::{Action, Babel};
 use crate::log;
 use crate::store::Store;
 use crate::transport::{Transport, TransportWrapper, TransportWrapperMethods};
+use crate::utilities::value_to_uint8array;
 use js_sys::Uint8Array;
 use serde_json::value::Value;
 use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
@@ -12,18 +13,20 @@ pub type PrimeNode = Rc<Prime>;
 
 pub struct Prime {
     store: RefStore,
-    subscriptions: RefCell<Vec<Box<dyn Fn(&Value)>>>,
     transport: TransportWrapper,
+    babel: Babel,
+    subscriptions: RefCell<Vec<Box<dyn Fn(&Value)>>>,
 }
 
 #[doc(hidden)]
-pub fn __build_prime_node(store: impl Store + 'static) -> PrimeNode {
+pub fn __build_prime_node(store: impl Store + 'static, babel: Babel) -> PrimeNode {
     let store = Rc::new(RefCell::new(store));
 
     let prime_node = Rc::new(Prime {
         store,
         subscriptions: RefCell::new(Vec::new()),
         transport: RefCell::new(None),
+        babel,
     });
 
     let transport = Transport::new(prime_node.clone());
@@ -52,27 +55,7 @@ impl Prime {
             //let val = parse_value_to_type!(test, "String");
 
             // TODO ctx send new state
-            let serialized = serde_json::to_vec(&state).unwrap();
-            unsafe {
-                // Does not work: TypeError: cannot transfer WebAssembly/asm.js ArrayBuffer
-                // Get Transferable
-                // See: https://github.com/rustwasm/wasm-bindgen/issues/1516
-                /*
-                let ser = Uint8Array::view(&serialized);
-                let ser = ser.buffer();
-                let res = self.ctx.post_message_with_transfer(&ser, &Array::of1(&ser));
-                match res {
-                    Ok(_) => {
-                        log("OKKK");
-                    }
-                    Err(err) => {
-                        log(&format!("NOT OKKK: {:?}", err));
-                    }
-                }*/
-
-                let ser = Uint8Array::view(&serialized);
-                self.transport.get().send(ser);
-            }
+            self.transport.get().send(value_to_uint8array(&state));
 
             // TODO use deserialization in node
             //let val: Value = serde_json::from_slice(&serialized).unwrap();
@@ -83,5 +66,19 @@ impl Prime {
     pub fn subscribe(&self, subscription: impl Fn(&Value) + 'static) {
         let subscription = Box::new(subscription);
         self.subscriptions.borrow_mut().push(subscription);
+    }
+
+    pub(crate) fn initialized(&self) -> bool {
+        self.transport.get().initialized()
+    }
+
+    pub(crate) fn set_initialized(&self, initialized: bool) {
+        self.transport.get().set_initialized(initialized);
+    }
+
+    pub(crate) fn send_state(&self) {
+        self.transport
+            .get()
+            .send(value_to_uint8array(&self.get_state()));
     }
 }

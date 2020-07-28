@@ -17,17 +17,18 @@ pub mod action;
 pub mod prime;
 pub mod store;
 mod transport;
+mod utilities;
 mod utils;
 
 use wasm_bindgen::prelude::*;
 
-use crate::action::Action;
+use crate::action::{Action, Babel};
 use crate::prime::__build_prime_node;
 use crate::store::__build_single_store;
+use crate::utils::set_panic_hook;
 
 // Re-exports
 pub use crate::prime::Prime;
-use crate::utils::set_panic_hook;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::value::Value;
 use wasm_bindgen::__rt::core::cell::RefCell;
@@ -60,10 +61,11 @@ pub fn create_store<
     state: State,
     reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     param: Option<Param>,
+    babel: Babel,
 ) -> Rc<Prime> {
     set_panic_hook();
     let store = __build_single_store(state, reducer, param);
-    __build_prime_node(store)
+    __build_prime_node(store, babel)
 }
 
 // To debug macros use ` cargo rustc -- -Z external-macro-backtrace `
@@ -72,7 +74,7 @@ pub fn create_store<
 
 #[macro_export]
 macro_rules! create_combined_store {
-    ( $( $store: expr ),* ) => {
+    ( $babel:expr, ($( $store: expr ),*) ) => {
         {
             let mut stores: Vec<Box<$crate::store::StoreUtility>> = Vec::new();
             $(
@@ -81,7 +83,7 @@ macro_rules! create_combined_store {
             let combined_store = $crate::store::__build_combined_store(stores);
             // Assign type to annotate return value of macro
             let mut prime_node: $crate::prime::PrimeNode =
-                $crate::prime::__build_prime_node(combined_store);
+                $crate::prime::__build_prime_node(combined_store, $babel);
             prime_node
         }
     };

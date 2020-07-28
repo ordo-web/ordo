@@ -1,10 +1,10 @@
 use crate::log;
 use crate::prime::PrimeNode;
 use js_sys::Uint8Array;
+use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
-use wasm_bindgen::{JsValue, JsCast};
-use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
+use wasm_bindgen::{JsCast, JsValue};
 use web_sys::MessageEvent;
 use web_sys::Worker;
 
@@ -18,7 +18,7 @@ pub(crate) struct Transport {
 impl Transport {
     pub(crate) fn new(node: PrimeNode) -> Transport {
         let ctx = Rc::new(Worker::from(JsValue::from(js_sys::global())));
-        let _ = ctx.post_message(&JsValue::from("CTX here speaking")); // TODO remove later
+        //let _ = ctx.post_message(&JsValue::from("CTX here speaking")); // TODO remove later
 
         let initialized = RefCell::new(false);
 
@@ -36,20 +36,39 @@ impl Transport {
     pub(crate) fn send(&self, data: Uint8Array) {
         let res = self.ctx.post_message(&data);
         match res {
-            Ok(_) => {
-                console_log!("OKKK");
-            }
+            Ok(_) => {}
             Err(err) => {
-                console_log!("NOT OKKK: {:?}", err);
+                console_log!("Main: Send-Error {:?}", err);
             }
         }
     }
 
     fn build_onmessage(node: PrimeNode, ctx: Rc<Worker>) -> Closure<dyn FnMut(MessageEvent)> {
-        Closure::wrap(Box::new(|event: MessageEvent| {
+        let node = node.clone();
+        Closure::wrap(Box::new(move |event: MessageEvent| {
             let data: JsValue = event.data();
             console_log!("Main: Received data: {:?}", &data);
+
+            if node.initialized() {
+                // TODO babel conversion
+            } else {
+                if data.is_undefined() {
+                    node.send_state();
+                    console_log!("Main: Initializing...");
+                } else {
+                    node.set_initialized(true);
+                    console_log!("Main: Initialized!");
+                }
+            }
         }) as Box<dyn FnMut(MessageEvent)>)
+    }
+
+    pub(crate) fn initialized(&self) -> bool {
+        self.initialized.borrow().clone()
+    }
+
+    pub(crate) fn set_initialized(&self, initialized: bool) {
+        self.initialized.replace(initialized);
     }
 }
 
