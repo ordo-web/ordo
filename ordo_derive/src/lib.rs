@@ -48,6 +48,7 @@ pub fn action(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input: TokenStream2 = item.into();
     let output = quote! {
         #[derive(Action, Clone, Serialize, Deserialize)]
+        #[serde(tag = "type", content = "payload")]
         #input
     };
     output.into()

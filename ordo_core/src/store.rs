@@ -43,8 +43,11 @@ pub struct SingleStore<State: Clone + Serialize + Deserialize<'static>, ActionEn
     param: Option<Param>,
 }
 
-impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + 'static, Param>
-    SingleStore<State, ActionEnum, Param>
+impl<
+        State: Clone + Serialize + Deserialize<'static>,
+        ActionEnum: Action + Clone + 'static,
+        Param,
+    > SingleStore<State, ActionEnum, Param>
 {
     fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
         if let Some(action) = action.downcast_ref::<ActionEnum>() {
@@ -56,8 +59,11 @@ impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + 'stat
     }
 }
 
-impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action + 'static, Param> Store
-    for SingleStore<State, ActionEnum, Param>
+impl<
+        State: Clone + Serialize + Deserialize<'static>,
+        ActionEnum: Action + Clone + 'static,
+        Param,
+    > Store for SingleStore<State, ActionEnum, Param>
 {
     fn get_state(&self) -> Value {
         serde_json::to_value(self.state.clone()).unwrap()
@@ -107,7 +113,7 @@ pub trait StoreUtility {
 
 impl<
         State: 'static + Clone + Serialize + Deserialize<'static>,
-        ActionEnum: Action + 'static,
+        ActionEnum: Action + Clone + 'static,
         Param: 'static,
     > StoreUtility for (String, SingleStore<State, ActionEnum, Param>)
 {

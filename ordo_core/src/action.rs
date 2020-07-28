@@ -1,1 +1,1 @@
-pub trait Action: Clone {}
+pub trait Action {}
