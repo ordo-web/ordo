@@ -12,9 +12,11 @@ pub fn generate_utilities(name: &Ident, data: &DataEnum) -> TokenStream {
         impl Action for #name {}
 
         #[allow(non_snake_case)]
-        pub fn #func_name(val: Value) -> Box<dyn Action> {
-            match serde_json::from_value::<MyAction2>(val) {
+        pub fn #func_name(val: Value) -> Box<dyn Any> {
+            log("HEY!");
+            match serde_json::from_value::<#name>(val) {
                 Ok(val) => {
+                    log("DA!");
                     Box::new(val)
                 },
                 Err(_) => panic!("Conversion for value of type #name failed")

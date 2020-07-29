@@ -2,9 +2,10 @@ use crate::action::{Action, Babel};
 use crate::log;
 use crate::store::Store;
 use crate::transport::{Transport, TransportWrapper, TransportWrapperMethods};
-use crate::utilities::value_to_uint8array;
+use crate::utils::value_to_uint8array;
 use js_sys::Uint8Array;
 use serde_json::value::Value;
+use wasm_bindgen::__rt::core::any::Any;
 use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
 
@@ -41,6 +42,10 @@ impl Prime {
 
     pub fn dispatch(&self, action: impl Action + 'static) {
         let action = Box::new(action);
+        self.dispatch_internal(action);
+    }
+
+    pub(crate) fn dispatch_internal(&self, action: Box<dyn Any>) {
         // Check if action is valid
         if self.store.borrow_mut().dispatch(action) {
             let state: Value = self.get_state();
@@ -80,5 +85,9 @@ impl Prime {
         self.transport
             .get()
             .send(value_to_uint8array(&self.get_state()));
+    }
+
+    pub(crate) fn value_to_action(&self, name: &str, val: Value) -> Result<Box<dyn Any>, ()> {
+        self.babel.value_to_action(name, val)
     }
 }

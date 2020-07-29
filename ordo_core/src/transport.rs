@@ -1,6 +1,8 @@
 use crate::log;
 use crate::prime::PrimeNode;
 use js_sys::Uint8Array;
+use serde_json::Value;
+use wasm_bindgen::__rt::core::any::Any;
 use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
@@ -50,7 +52,25 @@ impl Transport {
             console_log!("Main: Received data: {:?}", &data);
 
             if node.initialized() {
-                // TODO babel conversion
+                match data.into_serde::<Value>() {
+                    Ok(mut data) => {
+                        let ident = data["ident"].take();
+                        let ident = ident.as_str().unwrap();
+                        let action = data["action"].take();
+                        match node.value_to_action(&ident, action) {
+                            Ok(action) => {
+                                console_log!("Init dispatch from js...");
+                                node.dispatch_internal(action);
+                            }
+                            Err(_) => {
+                                console_log!("Ordo Critical-Error: Conversion for Action {} not found. Was it added to the babel macro?", &ident);
+                            }
+                        }
+                    }
+                    Err(_) => {
+                        console_log!("UI: Received unsupported data...");
+                    }
+                }
             } else {
                 if data.is_undefined() {
                     node.send_state();

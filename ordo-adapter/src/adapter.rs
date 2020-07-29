@@ -29,6 +29,10 @@ impl Adapter {
         self.store.get_state()
     }
 
+    pub(crate) fn dispatch(&self, action: JsValue) {
+        self.transport.get().send_value(action);
+    }
+
     pub(crate) fn initialized(&self) -> bool {
         self.transport.get().initialized()
     }

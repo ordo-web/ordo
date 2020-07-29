@@ -30,9 +30,11 @@ impl Node {
         self.adapter.get_state()
     }
 
-    pub fn dispatch(action: JsValue) {}
+    pub fn dispatch(&self, action: JsValue) {
+        self.adapter.dispatch(action);
+    }
 
-    pub fn subscribe(func: &Function) {}
+    pub fn subscribe(&self, func: &Function) {}
 
     pub fn ready(&self) -> Promise {
         let adapter = self.adapter.clone();

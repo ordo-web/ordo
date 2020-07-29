@@ -17,7 +17,6 @@ pub mod action;
 pub mod prime;
 pub mod store;
 mod transport;
-mod utilities;
 mod utils;
 
 use wasm_bindgen::prelude::*;

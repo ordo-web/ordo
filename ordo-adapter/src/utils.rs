@@ -13,6 +13,7 @@ pub fn set_panic_hook() {
 }
 
 pub fn uint8array_to_value(val: &Uint8Array) -> Result<Value, ()> {
+    // See: https://github.com/rustwasm/wasm-bindgen/issues/1171#issuecomment-453827679
     let mut deserialized: Vec<u8> = vec![0; val.length() as usize];
     val.copy_to(&mut deserialized[..]);
     match serde_json::from_slice::<Value>(&*deserialized) {

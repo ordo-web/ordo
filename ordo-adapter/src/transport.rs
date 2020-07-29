@@ -64,6 +64,16 @@ impl Transport {
 
             if node.initialized() {
                 // TODO update state and call subscriptions
+                if data.has_type::<Uint8Array>() {
+                    match uint8array_to_value(&data.unchecked_into::<Uint8Array>()) {
+                        Ok(state) => {
+                            node.update_state(state);
+                        }
+                        Err(_) => {
+                            console_log!("UI: Received unsupported data...");
+                        }
+                    }
+                }
             } else {
                 if data.has_type::<Uint8Array>() {
                     match uint8array_to_value(&data.unchecked_into::<Uint8Array>()) {
