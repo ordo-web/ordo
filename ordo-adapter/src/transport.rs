@@ -1,5 +1,6 @@
 use crate::adapter::AdapterNode;
 use crate::log;
+use crate::utils::uint8array_to_value;
 use js_sys::Uint8Array;
 use serde_json::Value;
 use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
@@ -64,16 +65,18 @@ impl Transport {
             if node.initialized() {
                 // TODO update state and call subscriptions
             } else {
-                match data.into_serde::<Value>() {
-                    Ok(state) => {
-                        node.update_state(state);
-                        node.set_initialized(true);
-                        node.send_value(JsValue::null());
-                        console_log!("UI: Initialized!");
-                    }
-                    Err(_) => {
-                        node.send_value(JsValue::undefined());
-                        console_log!("UI: Initializing...");
+                if data.has_type::<Uint8Array>() {
+                    match uint8array_to_value(&data.unchecked_into::<Uint8Array>()) {
+                        Ok(state) => {
+                            node.update_state(state);
+                            node.set_initialized(true);
+                            node.send_value(JsValue::null());
+                            console_log!("UI: Initialized!");
+                        }
+                        Err(_) => {
+                            node.send_value(JsValue::undefined());
+                            console_log!("UI: Initializing...");
+                        }
                     }
                 }
             }
