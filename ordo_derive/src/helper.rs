@@ -13,11 +13,8 @@ pub fn generate_utilities(name: &Ident, data: &DataEnum) -> TokenStream {
 
         #[allow(non_snake_case)]
         pub fn #func_name(val: Value) -> Result<Box<dyn Any>, ()> {
-            log("HEY!");
-            log(&format!("The val: {:?}", &val));
             match serde_json::from_value::< #name >(val) {
                 Ok(val) => {
-                    log("DA!");
                     Ok(Box::new(val))
                 },
                 Err(err) => {

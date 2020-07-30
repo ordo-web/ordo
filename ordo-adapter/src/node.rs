@@ -34,7 +34,9 @@ impl Node {
         self.adapter.dispatch(action);
     }
 
-    pub fn subscribe(&self, func: &Function) {}
+    pub fn subscribe(&self, func: Function) {
+        self.adapter.subscribe(func);
+    }
 
     pub fn ready(&self) -> Promise {
         let adapter = self.adapter.clone();

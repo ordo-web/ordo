@@ -67,6 +67,7 @@ impl Transport {
                 if data.has_type::<Uint8Array>() {
                     match uint8array_to_value(&data.unchecked_into::<Uint8Array>()) {
                         Ok(state) => {
+                            // Update state and call subscriptions
                             node.update_state(state);
                         }
                         Err(_) => {
