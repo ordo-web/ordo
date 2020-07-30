@@ -14,12 +14,16 @@ pub fn generate_utilities(name: &Ident, data: &DataEnum) -> TokenStream {
         #[allow(non_snake_case)]
         pub fn #func_name(val: Value) -> Box<dyn Any> {
             log("HEY!");
-            match serde_json::from_value::<#name>(val) {
+            log(&format!("The val: {:?}", &val));
+            match serde_json::from_value::< #name >(val) {
                 Ok(val) => {
                     log("DA!");
                     Box::new(val)
                 },
-                Err(_) => panic!("Conversion for value of type #name failed")
+                Err(err) => {
+                    let name = stringify!(#name);
+                    panic!("Conversion for value of type {} failed. \nCause: {}", name, err)
+                }
             }
         }
     });

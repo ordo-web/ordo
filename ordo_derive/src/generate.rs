@@ -40,7 +40,7 @@ pub fn generate_js_actions(name: &Ident, data: &DataEnum) {
         // Parse name of the specific action
         let action_name = string_between(format!("{:?}", &variant.ident), "\"", "\"");
         // Check if it contains a payload
-        let has_param = if variant.fields == syn::Fields::Unit {
+        let has_param = if variant.fields != syn::Fields::Unit {
             true
         } else {
             false
@@ -73,7 +73,7 @@ fn generate_code(enum_name: &str, name: &str, has_param: bool) -> String {
     } else {
         let mut action = String::from("export const ");
         action.push_str(&name.to_lowercase());
-        action.push_str(" = (payload) => {\n   return {\n      ident: '");
+        action.push_str(" = () => {\n   return {\n      ident: '");
         action.push_str(enum_name);
         action.push_str("',\n      action: {\n");
         action.push_str("         type: '");
