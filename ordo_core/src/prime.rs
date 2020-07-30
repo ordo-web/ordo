@@ -1,4 +1,4 @@
-use crate::action::{Action, Babel};
+use crate::action::{Action, Babel, BabelError};
 use crate::log;
 use crate::store::Store;
 use crate::transport::{Transport, TransportWrapper, TransportWrapperMethods};
@@ -87,7 +87,11 @@ impl Prime {
             .send(value_to_uint8array(&self.get_state()));
     }
 
-    pub(crate) fn value_to_action(&self, name: &str, val: Value) -> Result<Box<dyn Any>, ()> {
+    pub(crate) fn value_to_action(
+        &self,
+        name: &str,
+        val: Value,
+    ) -> Result<Box<dyn Any>, BabelError> {
         self.babel.value_to_action(name, val)
     }
 }

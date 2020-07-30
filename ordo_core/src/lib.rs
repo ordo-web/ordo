@@ -1,37 +1,22 @@
 #[macro_use]
-mod macros {
-    macro_rules! console_log {
-    // Note that this is using the `log` function imported above during
-    // `bare_bones`
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-    }
-
-    macro_rules! parse_value_to_type {
-        ($val: expr, $name: tt) => {{
-            let res: $name = serde_json::from_value($val).unwrap();
-            res
-        }};
-    }
-}
+mod macros;
 pub mod action;
 pub mod prime;
 pub mod store;
 mod transport;
 mod utils;
 
-use wasm_bindgen::prelude::*;
-
 use crate::action::{Action, Babel};
 use crate::prime::__build_prime_node;
 use crate::store::__build_single_store;
 use crate::utils::set_panic_hook;
+use wasm_bindgen::__rt::std::rc::Rc;
+use wasm_bindgen::prelude::*;
 
 // Re-exports
 pub use crate::prime::Prime;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::value::Value;
-use wasm_bindgen::__rt::core::cell::RefCell;
-use wasm_bindgen::__rt::std::rc::Rc;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -45,6 +30,9 @@ extern "C" {
     // `log(..)`
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+
+    #[wasm_bindgen(js_namespace = console)]
+    pub fn error(s: &str);
 }
 
 #[wasm_bindgen]
@@ -95,4 +83,11 @@ macro_rules! reducer {
         let store = Box::new((String::from($name), tmp));
         store
     }};
+}
+
+#[macro_export]
+macro_rules! console_error {
+    // Note that this is using the `log` function imported above during
+    // `bare_bones`
+    ($($t:tt)*) => (error(&format_args!($($t)*).to_string()))
 }

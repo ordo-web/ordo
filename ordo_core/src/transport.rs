@@ -1,5 +1,7 @@
+use crate::action::BabelError;
 use crate::log;
 use crate::prime::PrimeNode;
+use crate::{console_error, error};
 use js_sys::Uint8Array;
 use serde_json::Value;
 use wasm_bindgen::__rt::core::any::Any;
@@ -62,8 +64,10 @@ impl Transport {
                                 console_log!("Init dispatch from js...");
                                 node.dispatch_internal(action);
                             }
-                            Err(_) => {
-                                console_log!("Ordo Critical-Error: Conversion for Action {} not found. Was it added to the babel macro?", &ident);
+                            Err(err) => {
+                                if err == BabelError::MissingFunc {
+                                    console_error!("Ordo Critical-Error: Conversion for Action {} not found. Was it added to the babel macro?", &ident)
+                                }
                             }
                         }
                     }

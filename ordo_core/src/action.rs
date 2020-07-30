@@ -5,10 +5,16 @@ use wasm_bindgen::__rt::std::collections::HashMap;
 
 pub trait Action {}
 
-pub type ParseActionFn = fn(Value) -> Box<dyn Any>;
+pub type ParseActionFn = fn(Value) -> Result<Box<dyn Any>, ()>;
 
 pub struct Babel {
     store: RefCell<HashMap<&'static str, ParseActionFn>>,
+}
+
+#[derive(PartialEq)]
+pub(crate) enum BabelError {
+    ConversionFailed,
+    MissingFunc,
 }
 
 impl Babel {
@@ -18,10 +24,17 @@ impl Babel {
         }
     }
 
-    pub(crate) fn value_to_action(&self, name: &str, val: Value) -> Result<Box<dyn Any>, ()> {
+    pub(crate) fn value_to_action(
+        &self,
+        name: &str,
+        val: Value,
+    ) -> Result<Box<dyn Any>, BabelError> {
         match self.store.borrow().get(name) {
-            Some(func) => Ok((*func)(val)),
-            None => Err(()),
+            Some(func) => match (*func)(val) {
+                Ok(res) => Ok(res),
+                Err(_) => Err(BabelError::ConversionFailed),
+            },
+            None => Err(BabelError::MissingFunc),
         }
     }
 }
