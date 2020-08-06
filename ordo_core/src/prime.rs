@@ -68,6 +68,7 @@ impl Prime {
         }
     }
 
+    // TODO implement unsubscribe
     pub fn subscribe(&self, subscription: impl Fn(&Value) + 'static) {
         let subscription = Box::new(subscription);
         self.subscriptions.borrow_mut().push(subscription);

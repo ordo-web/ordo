@@ -34,8 +34,12 @@ impl Node {
         self.adapter.dispatch(action);
     }
 
-    pub fn subscribe(&self, func: Function) {
-        self.adapter.subscribe(func);
+    pub fn subscribe(&self, subscription: Function) {
+        self.adapter.subscribe(subscription);
+    }
+
+    pub fn unsubscribe(&self, subscription: Function) {
+        self.adapter.unsubscribe(subscription);
     }
 
     pub fn ready(&self) -> Promise {
@@ -45,6 +49,8 @@ impl Node {
                 if adapter.initialized() {
                     break;
                 } else {
+                    // Redo handshake
+                    adapter.send_value(JsValue::undefined());
                     let _ = JsFuture::from(sleep(10.0)).await;
                 }
             }

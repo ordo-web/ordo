@@ -63,6 +63,12 @@ impl Adapter {
         self.subscriptions.borrow_mut().push(subscription);
     }
 
+    pub(crate) fn unsubscribe(&self, subscription: Function) {
+        self.subscriptions
+            .borrow_mut()
+            .retain(|s| **s != subscription);
+    }
+
     pub(crate) fn send_value(&self, data: JsValue) {
         self.transport.get().send_value(data);
     }
