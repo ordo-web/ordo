@@ -9,7 +9,7 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "npx babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "test": "jest"
+    "test": "mocha -r ts-node/register tests/**/*.ts"
   },
   "keywords": [
     "ordo"
@@ -21,15 +21,22 @@
     "@babel/core": "^7.11.4",
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-typescript": "^7.10.4",
+    "@types/chai": "^4.2.12",
     "@types/jest": "^26.0.10",
+    "@types/mocha": "^8.0.3",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^26.3.0",
     "babel-loader": "^8.1.0",
-    "jest": "^26.4.2",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.1",
+    "ts-node": "^9.0.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   },
   "resolutions": {
     "babel-core": "7.0.0-bridge.0"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.11.0",
+    "@types/node": "^14.6.0"
   }
 }

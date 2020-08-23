@@ -1,7 +1,10 @@
-export {}
+import { sum } from "../src/sum";
+import { expect } from "chai";
+import "mocha";
 
-const sum = require('../src/sum');
-
-test('adds 1 + 2 to equal 3', () => {
-    expect(sum(1, 2)).toBe(3);
+describe("Sum Test", () => {
+  it("should return true", () => {
+    const result = sum(1, 2);
+    expect(result).to.equal(3);
+  });
 });
