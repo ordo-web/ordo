@@ -1,0 +1,35 @@
+{
+  "name": "ordo_test",
+  "version": "1.0.0",
+  "description": "Testing Ordo framework.",
+  "main": "index.js",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "npx babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "test": "jest"
+  },
+  "keywords": [
+    "ordo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.4",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/jest": "^26.0.10",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^26.3.0",
+    "babel-loader": "^8.1.0",
+    "jest": "^26.4.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "resolutions": {
+    "babel-core": "7.0.0-bridge.0"
+  }
+}
