@@ -63,10 +63,11 @@ impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action>
 #[async_trait(?Send)]
 impl<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action>
     ReducerFunc<State, ActionEnum>
-    for Box<dyn Fn(State, ActionEnum) -> Pin<Box<dyn Future<Output = State>>>>
+    for Box<dyn Fn(State, ActionEnum) -> Box<dyn Future<Output = State>>>
 {
     async fn call(&self, state: State, action: ActionEnum) -> State {
-        (self)(state, action).await
+        // Pin help: https://stackoverflow.com/a/58357166/12347616
+        Pin::from((self)(state, action)).await
     }
 }
 
@@ -84,7 +85,7 @@ impl<State: 'static + Clone + Serialize + Deserialize<'static>, ActionEnum: 'sta
     }
 
     pub fn new_async(
-        func: Box<dyn Fn(State, ActionEnum) -> Pin<Box<dyn Future<Output = State>>>>,
+        func: Box<dyn Fn(State, ActionEnum) -> Box<dyn Future<Output = State>>>,
     ) -> Reducer<State, ActionEnum> {
         Reducer {
             func: Box::new(func),
