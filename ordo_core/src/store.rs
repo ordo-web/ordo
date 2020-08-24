@@ -1,4 +1,5 @@
 use crate::action::Action;
+use crate::reducer::Reducer;
 use serde::ser::Serialize;
 use serde::Deserialize;
 use serde_json::value::{Map, Value};
@@ -22,7 +23,8 @@ pub fn __build_single_store<
     Param,
 >(
     state: State,
-    reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
+    //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
+    reducer: Box<dyn Reducer<State, ActionEnum>>,
     param: Option<Param>,
 ) -> SingleStore<State, ActionEnum, Param> {
     SingleStore {
@@ -39,7 +41,8 @@ pub fn __build_combined_store(stores: Vec<Box<dyn StoreUtility>>) -> CombinedSto
 
 pub struct SingleStore<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action, Param> {
     state: State,
-    reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
+    //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
+    reducer: Box<dyn Reducer<State, ActionEnum>>,
     param: Option<Param>,
 }
 
@@ -49,8 +52,10 @@ impl<
         Param,
     > SingleStore<State, ActionEnum, Param>
 {
-    fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
+    async fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
         if let Some(action) = action.downcast_ref::<ActionEnum>() {
+            let new_state: State = self.reducer.call(self.state.clone(), action.clone()).await;
+
             let new_state: State = (&self.reducer)(&self.state, action.clone(), &self.param);
             self.state = new_state;
             return true;
