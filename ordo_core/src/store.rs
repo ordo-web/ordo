@@ -1,5 +1,6 @@
 use crate::action::Action;
 use crate::reducer::Reducer;
+use async_trait::async_trait;
 use serde::ser::Serialize;
 use serde::Deserialize;
 use serde_json::value::{Map, Value};
@@ -8,12 +9,13 @@ use wasm_bindgen::__rt::core::any::Any;
 // TODO Remove param and convert reducer fn to reducer Fn (Closure).
 // This way values can be easily moved into (like via RC).
 
+#[async_trait(?Send)]
 pub trait Store {
     // Returns the current state.
     fn get_state(&self) -> Value;
 
     // Dispatches an Action which should result in called Reducers.
-    fn dispatch(&mut self, action: Box<dyn Any>) -> bool;
+    async fn dispatch(&mut self, action: Box<dyn Any>) -> bool;
 }
 
 #[doc(hidden)]
@@ -24,7 +26,7 @@ pub fn __build_single_store<
 >(
     state: State,
     //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
-    reducer: Box<dyn Reducer<State, ActionEnum>>,
+    reducer: Reducer<State, ActionEnum>,
     param: Option<Param>,
 ) -> SingleStore<State, ActionEnum, Param> {
     SingleStore {
@@ -42,12 +44,12 @@ pub fn __build_combined_store(stores: Vec<Box<dyn StoreUtility>>) -> CombinedSto
 pub struct SingleStore<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action, Param> {
     state: State,
     //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
-    reducer: Box<dyn Reducer<State, ActionEnum>>,
+    reducer: Reducer<State, ActionEnum>,
     param: Option<Param>,
 }
 
 impl<
-        State: Clone + Serialize + Deserialize<'static>,
+        State: 'static + Clone + Serialize + Deserialize<'static>,
         ActionEnum: Action + Clone + 'static,
         Param,
     > SingleStore<State, ActionEnum, Param>
@@ -55,8 +57,7 @@ impl<
     async fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
         if let Some(action) = action.downcast_ref::<ActionEnum>() {
             let new_state: State = self.reducer.call(self.state.clone(), action.clone()).await;
-
-            let new_state: State = (&self.reducer)(&self.state, action.clone(), &self.param);
+            //let new_state: State = (&self.reducer)(&self.state, action.clone(), &self.param);
             self.state = new_state;
             return true;
         }
@@ -64,8 +65,9 @@ impl<
     }
 }
 
+#[async_trait(?Send)]
 impl<
-        State: Clone + Serialize + Deserialize<'static>,
+        State: 'static + Clone + Serialize + Deserialize<'static>,
         ActionEnum: Action + Clone + 'static,
         Param,
     > Store for SingleStore<State, ActionEnum, Param>
@@ -74,8 +76,8 @@ impl<
         serde_json::to_value(self.state.clone()).unwrap()
     }
 
-    fn dispatch(&mut self, action: Box<dyn Any>) -> bool {
-        self.dispatch_internal(&action)
+    async fn dispatch(&mut self, action: Box<dyn Any>) -> bool {
+        self.dispatch_internal(&action).await
     }
 }
 
@@ -83,6 +85,7 @@ pub struct CombinedStore {
     stores: Vec<Box<dyn StoreUtility>>,
 }
 
+#[async_trait(?Send)]
 impl Store for CombinedStore {
     fn get_state(&self) -> Value {
         let mut complete_state = Map::new();
@@ -93,10 +96,10 @@ impl Store for CombinedStore {
         Value::from(complete_state)
     }
 
-    fn dispatch(&mut self, action: Box<dyn Any>) -> bool {
+    async fn dispatch(&mut self, action: Box<dyn Any>) -> bool {
         let mut flag = false;
         for store in self.stores.iter_mut() {
-            if store.dispatch_internal(&action) && !flag {
+            if store.dispatch_internal(&action).await && !flag {
                 flag = true;
             }
         }
@@ -110,12 +113,14 @@ impl Store for CombinedStore {
 // See: https://stackoverflow.com/a/40065342/12347616
 
 #[doc(hidden)]
+#[async_trait(?Send)]
 pub trait StoreUtility {
     fn serialize(&self) -> (String, Value);
 
-    fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool;
+    async fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool;
 }
 
+#[async_trait(?Send)]
 impl<
         State: 'static + Clone + Serialize + Deserialize<'static>,
         ActionEnum: Action + Clone + 'static,
@@ -127,7 +132,7 @@ impl<
         (self.0.clone(), state)
     }
 
-    fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
-        self.1.dispatch_internal(&action)
+    async fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
+        self.1.dispatch_internal(&action).await
     }
 }

@@ -51,7 +51,7 @@ impl Prime {
 
     pub(crate) async fn dispatch_internal(&self, action: Box<dyn Any>) {
         // Check if action is valid
-        if self.store.borrow_mut().dispatch(action) {
+        if self.store.borrow_mut().dispatch(action).await {
             let state: Value = self.get_state();
             // Trigger subscriptions if they exist
             if self.subscriptions.borrow().len() > 0 {

@@ -16,6 +16,7 @@ use wasm_bindgen::prelude::*;
 
 // Re-exports
 pub use crate::prime::Prime;
+use crate::reducer::Reducer;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::value::Value;
 
@@ -47,7 +48,9 @@ pub fn create_store<
     Param: 'static,
 >(
     state: State,
-    reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
+    //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
+    //reducer: impl ReducerFunc<State, ActionEnum> + 'static,
+    reducer: Reducer<State, ActionEnum>,
     param: Option<Param>,
     babel: Babel,
 ) -> Rc<Prime> {
