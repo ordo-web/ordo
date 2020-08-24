@@ -9,6 +9,7 @@ use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen_futures::spawn_local;
 use web_sys::MessageEvent;
 use web_sys::Worker;
 
@@ -62,7 +63,10 @@ impl Transport {
                         match node.value_to_action(&ident, action) {
                             Ok(action) => {
                                 console_log!("Init dispatch from js...");
-                                node.dispatch_internal(action);
+                                let this = node.clone();
+                                spawn_local(async move {
+                                    this.dispatch_internal(action).await;
+                                });
                             }
                             Err(err) => {
                                 if err == BabelError::MissingFunc {

@@ -8,6 +8,7 @@ use serde_json::value::Value;
 use wasm_bindgen::__rt::core::any::Any;
 use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
+use wasm_bindgen_futures::spawn_local;
 
 pub type RefStore = Rc<RefCell<dyn Store + 'static>>;
 pub type PrimeNode = Rc<Prime>;
@@ -40,12 +41,15 @@ impl Prime {
         self.store.borrow_mut().get_state()
     }
 
-    pub fn dispatch(&self, action: impl Action + 'static) {
+    pub fn dispatch(self: &Rc<Self>, action: impl Action + 'static) {
+        let this = self.clone();
         let action = Box::new(action);
-        self.dispatch_internal(action);
+        spawn_local(async move {
+            this.dispatch_internal(action).await;
+        });
     }
 
-    pub(crate) fn dispatch_internal(&self, action: Box<dyn Any>) {
+    pub(crate) async fn dispatch_internal(&self, action: Box<dyn Any>) {
         // Check if action is valid
         if self.store.borrow_mut().dispatch(action) {
             let state: Value = self.get_state();

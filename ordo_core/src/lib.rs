@@ -2,6 +2,7 @@
 mod macros;
 pub mod action;
 pub mod prime;
+pub mod reducer;
 pub mod store;
 mod transport;
 mod utils;
