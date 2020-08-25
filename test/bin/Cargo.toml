@@ -1,5 +1,5 @@
 [package]
-name = "bin"
+name = "ordo_test"
 version = "0.1.0"
 authors = ["Kacper Urbaniec <at.kacper.urbaniec@gmail.com>"]
 edition = "2018"

@@ -7,7 +7,7 @@ pub mod store;
 mod transport;
 mod utils;
 
-use crate::action::{Action, Babel};
+use crate::action::{Action, TranslationLayer};
 use crate::prime::__build_prime_node;
 use crate::store::__build_single_store;
 use crate::utils::set_panic_hook;
@@ -45,18 +45,16 @@ pub fn hi() {
 pub fn create_store<
     State: 'static + Clone + Serialize + Deserialize<'static>,
     ActionEnum: 'static + Action + Clone,
-    Param: 'static,
 >(
     state: State,
     //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     //reducer: impl ReducerFunc<State, ActionEnum> + 'static,
     reducer: Reducer<State, ActionEnum>,
-    param: Option<Param>,
-    babel: Babel,
+    translation: TranslationLayer,
 ) -> Rc<Prime> {
     set_panic_hook();
-    let store = __build_single_store(state, reducer, param);
-    __build_prime_node(store, babel)
+    let store = __build_single_store(state, reducer);
+    __build_prime_node(store, translation)
 }
 
 // To debug macros use ` cargo rustc -- -Z external-macro-backtrace `
@@ -65,7 +63,7 @@ pub fn create_store<
 
 #[macro_export]
 macro_rules! create_combined_store {
-    ( $babel:expr, ($( $store: expr ),*) ) => {
+    ( $translation:expr, ($( $store: expr ),*) ) => {
         {
             let mut stores: Vec<Box<$crate::store::StoreUtility>> = Vec::new();
             $(
@@ -74,16 +72,16 @@ macro_rules! create_combined_store {
             let combined_store = $crate::store::__build_combined_store(stores);
             // Assign type to annotate return value of macro
             let mut prime_node: $crate::prime::PrimeNode =
-                $crate::prime::__build_prime_node(combined_store, $babel);
+                $crate::prime::__build_prime_node(combined_store, $translation);
             prime_node
         }
     };
 }
 
 #[macro_export]
-macro_rules! reducer {
-    ( $name:expr, $state:expr, $reducer:expr, $param:expr ) => {{
-        let tmp = $crate::store::__build_single_store($state, $reducer, $param);
+macro_rules! config {
+    ( $name:expr, $state:expr, $reducer:expr ) => {{
+        let tmp = $crate::store::__build_single_store($state, $reducer);
         let store = Box::new((String::from($name), tmp));
         store
     }};

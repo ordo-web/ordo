@@ -7,7 +7,7 @@ pub trait Action {}
 
 pub type ParseActionFn = fn(Value) -> Result<Box<dyn Any>, ()>;
 
-pub struct Babel {
+pub struct TranslationLayer {
     store: RefCell<HashMap<&'static str, ParseActionFn>>,
 }
 
@@ -17,9 +17,9 @@ pub(crate) enum BabelError {
     MissingFunc,
 }
 
-impl Babel {
-    pub fn new(store: HashMap<&'static str, ParseActionFn>) -> Babel {
-        Babel {
+impl TranslationLayer {
+    pub fn new(store: HashMap<&'static str, ParseActionFn>) -> TranslationLayer {
+        TranslationLayer {
             store: RefCell::new(store),
         }
     }
@@ -40,14 +40,14 @@ impl Babel {
 }
 
 #[macro_export]
-macro_rules! babel {
+macro_rules! connect {
     ( $( $action: ident, $func: expr ),* ) => {
         {
             let mut store: HashMap<&'static str, $crate::action::ParseActionFn> = HashMap::new();
             $(
                 let _ = store.insert(stringify!($action), $func);
             )*
-            $crate::action::Babel::new(store)
+            $crate::action::TranslationLayer::new(store)
         }
     };
 }

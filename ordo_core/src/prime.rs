@@ -1,4 +1,4 @@
-use crate::action::{Action, Babel, BabelError};
+use crate::action::{Action, BabelError, TranslationLayer};
 use crate::log;
 use crate::store::Store;
 use crate::transport::{Transport, TransportWrapper, TransportWrapperMethods};
@@ -16,12 +16,12 @@ pub type PrimeNode = Rc<Prime>;
 pub struct Prime {
     store: RefStore,
     transport: TransportWrapper,
-    babel: Babel,
+    babel: TranslationLayer,
     subscriptions: RefCell<Vec<Box<dyn Fn(&Value)>>>,
 }
 
 #[doc(hidden)]
-pub fn __build_prime_node(store: impl Store + 'static, babel: Babel) -> PrimeNode {
+pub fn __build_prime_node(store: impl Store + 'static, babel: TranslationLayer) -> PrimeNode {
     let store = Rc::new(RefCell::new(store));
 
     let prime_node = Rc::new(Prime {

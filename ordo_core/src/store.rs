@@ -22,17 +22,14 @@ pub trait Store {
 pub fn __build_single_store<
     State: Clone + Serialize + Deserialize<'static>,
     ActionEnum: Action,
-    Param,
 >(
     state: State,
     //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     reducer: Reducer<State, ActionEnum>,
-    param: Option<Param>,
-) -> SingleStore<State, ActionEnum, Param> {
+) -> SingleStore<State, ActionEnum> {
     SingleStore {
         state,
         reducer,
-        param,
     }
 }
 
@@ -41,18 +38,16 @@ pub fn __build_combined_store(stores: Vec<Box<dyn StoreUtility>>) -> CombinedSto
     CombinedStore { stores }
 }
 
-pub struct SingleStore<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action, Param> {
+pub struct SingleStore<State: Clone + Serialize + Deserialize<'static>, ActionEnum: Action> {
     state: State,
     //reducer: fn(&State, ActionEnum, &Option<Param>) -> State,
     reducer: Reducer<State, ActionEnum>,
-    param: Option<Param>,
 }
 
 impl<
         State: 'static + Clone + Serialize + Deserialize<'static>,
         ActionEnum: Action + Clone + 'static,
-        Param,
-    > SingleStore<State, ActionEnum, Param>
+    > SingleStore<State, ActionEnum>
 {
     async fn dispatch_internal(&mut self, action: &Box<dyn Any>) -> bool {
         if let Some(action) = action.downcast_ref::<ActionEnum>() {
@@ -69,8 +64,7 @@ impl<
 impl<
         State: 'static + Clone + Serialize + Deserialize<'static>,
         ActionEnum: Action + Clone + 'static,
-        Param,
-    > Store for SingleStore<State, ActionEnum, Param>
+    > Store for SingleStore<State, ActionEnum>
 {
     fn get_state(&self) -> Value {
         serde_json::to_value(self.state.clone()).unwrap()
@@ -124,8 +118,7 @@ pub trait StoreUtility {
 impl<
         State: 'static + Clone + Serialize + Deserialize<'static>,
         ActionEnum: Action + Clone + 'static,
-        Param: 'static,
-    > StoreUtility for (String, SingleStore<State, ActionEnum, Param>)
+    > StoreUtility for (String, SingleStore<State, ActionEnum>)
 {
     fn serialize(&self) -> (String, Value) {
         let state = serde_json::to_value(self.1.state.clone()).unwrap();
