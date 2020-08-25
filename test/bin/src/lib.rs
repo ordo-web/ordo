@@ -30,7 +30,7 @@ extern "C" {
 }
 
 #[state]
-pub struct CounterState {
+struct CounterState {
     counter: u8,
 }
 
