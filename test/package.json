@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --mode development  --open --hot",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test1": "./node_modules/.bin/cypress run -- --record --spec \"cypress/integration/single_store_spec.js\"",
     "cypress:open": "cypress open"
   },
   "keywords": [],
