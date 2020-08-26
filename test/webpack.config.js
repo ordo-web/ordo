@@ -66,48 +66,53 @@ module.exports = (args, options) => {
   /*
    * Configure WebWorker with WebAssembly
    */
-  const workerConfig = {
-    entry: "./src/worker/worker",
-    target: "webworker",
+  const workerBuilder = (fileName) => {
+    return {
+      entry: "./src/worker/" + fileName,
+      target: "webworker",
 
-    resolve: {
-      extensions: [".ts", ".js", ".wasm"],
-    },
-    output: {
-      path: path.resolve(__dirname, "dist"),
-      publicPath: "/",
-      filename: "worker.js",
-    },
-    module: {
-      rules: [
-        // we use babel-loader to load our jsx and tsx files
-        {
-          test: /\.(ts|js)x?$/,
-          exclude: /node_modules/,
-          use: {
-            loader: "babel-loader",
+      resolve: {
+        extensions: [".ts", ".js", ".wasm"],
+      },
+      output: {
+        path: path.resolve(__dirname, "dist"),
+        publicPath: "/",
+        filename: fileName + ".js",
+      },
+      module: {
+        rules: [
+          // we use babel-loader to load our jsx and tsx files
+          {
+            test: /\.(ts|js)x?$/,
+            exclude: /node_modules/,
+            use: {
+              loader: "babel-loader",
+            },
           },
-        },
-        // loader for source maps
-        {
-          enforce: "pre",
-          test: /\.js$/,
-          use: "source-map-loader",
-        },
-        {
-          enforce: "pre",
-          test: /\.ts?$/,
-          use: "source-map-loader",
-        },
-      ],
-    },
-    /**plugins: [
-            new WorkboxPlugin.GenerateSW({
+          // loader for source maps
+          {
+            enforce: "pre",
+            test: /\.js$/,
+            use: "source-map-loader",
+          },
+          {
+            enforce: "pre",
+            test: /\.ts?$/,
+            use: "source-map-loader",
+          },
+        ],
+      },
+      /**plugins: [
+       new WorkboxPlugin.GenerateSW({
                 swDest: 'workerSW.js'
             }),
-        ],*/
-    devtool: "source-map",
+       ],*/
+      devtool: "source-map",
+    };
   };
 
-  return [appConfig, workerConfig];
+  const singleStoreSync = workerBuilder("singleStoreSync");
+  const singleStoreAsync = workerBuilder("singleStoreAsync");
+
+  return [appConfig, singleStoreSync, singleStoreAsync];
 };

@@ -106,12 +106,14 @@ name = "ordo_test"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
+ "js-sys",
  "ordo",
  "ordo_derive",
  "serde",
  "serde_derive",
  "serde_json",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "wasm-bindgen-test",
  "wee_alloc",
 ]

@@ -2,7 +2,7 @@ use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use syn::DataEnum;
 
-pub fn generate_utilities(name: &Ident, data: &DataEnum) -> TokenStream {
+pub fn generate_utilities(name: &Ident, _data: &DataEnum) -> TokenStream {
     let mut gen = TokenStream::new();
 
     let concatenated = format!("parse_{}", name);

@@ -1,12 +1,10 @@
 use crate::action::{Action, BabelError, TranslationLayer};
-use crate::log;
 use crate::store::Store;
 use crate::transport::{Transport, TransportWrapper, TransportWrapperMethods};
 use crate::utils::value_to_uint8array;
-use js_sys::Uint8Array;
 use serde_json::value::Value;
 use wasm_bindgen::__rt::core::any::Any;
-use wasm_bindgen::__rt::core::cell::{Cell, RefCell};
+use wasm_bindgen::__rt::core::cell::RefCell;
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 

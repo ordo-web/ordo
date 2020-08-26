@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --mode development --hot",
-    "test1": "start-server-and-test start http://localhost:8080 cy:test1",
-    "cy:test1": "./node_modules/.bin/cypress run -- --record --spec \"cypress/integration/single_store_spec.js\"",
+    "test": "start-server-and-test start http://localhost:8080 cy:test",
+    "cy:test": "./node_modules/.bin/cypress run -- --record --spec \"cypress/integration/single_store_spec.js\"",
     "cypress:open": "cypress open"
   },
   "keywords": [],

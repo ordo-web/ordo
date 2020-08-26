@@ -4,7 +4,6 @@ use crate::prime::PrimeNode;
 use crate::{console_error, error};
 use js_sys::Uint8Array;
 use serde_json::Value;
-use wasm_bindgen::__rt::core::any::Any;
 use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
@@ -48,7 +47,7 @@ impl Transport {
         }
     }
 
-    fn build_onmessage(node: PrimeNode, ctx: Rc<Worker>) -> Closure<dyn FnMut(MessageEvent)> {
+    fn build_onmessage(node: PrimeNode, _ctx: Rc<Worker>) -> Closure<dyn FnMut(MessageEvent)> {
         let node = node.clone();
         Closure::wrap(Box::new(move |event: MessageEvent| {
             let data: JsValue = event.data();

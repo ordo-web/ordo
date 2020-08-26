@@ -12,7 +12,6 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
-use std::collections::HashMap;
 use syn::Data;
 
 /// Implements the Action trait on an enum.
