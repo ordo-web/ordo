@@ -1,5 +1,5 @@
-describe("Ordo", () => {
-  it("Test Single Store with sync reducer", () => {
+describe("Ordo Single Store", () => {
+  it("Test with sync reducer", () => {
     cy.visit("/");
 
     cy.get("button").contains("singleStoreSync").click();
@@ -13,7 +13,7 @@ describe("Ordo", () => {
     cy.get("h1").contains(10);
   });
 
-  it("Test Single Store with async reducer", () => {
+  it("Test with async reducer", () => {
     cy.visit("/");
 
     cy.get("button").contains("singleStoreAsync").click();
@@ -27,7 +27,7 @@ describe("Ordo", () => {
     cy.get("h1").contains("Hello!");
   });
 
-  it("Test Single Store with dispatches from prime node", () => {
+  it("Test with dispatches from prime node", () => {
     cy.visit("/");
 
     cy.get("button").contains("singleStoreWorker").click();

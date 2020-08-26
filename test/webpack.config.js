@@ -115,5 +115,17 @@ module.exports = (args, options) => {
   const singleStoreAsync = workerBuilder("singleStoreAsync");
   const singleStoreWorker = workerBuilder("singleStoreWorker");
 
-  return [appConfig, singleStoreSync, singleStoreAsync, singleStoreWorker];
+  const combinedStoreSync = workerBuilder("combinedStoreSync");
+  const combinedStoreAsync = workerBuilder("combinedStoreAsync");
+  const combinedStoreWorker = workerBuilder("combinedStoreWorker");
+
+  return [
+    appConfig,
+    singleStoreSync,
+    singleStoreAsync,
+    singleStoreWorker,
+    combinedStoreSync,
+    combinedStoreAsync,
+    combinedStoreWorker,
+  ];
 };

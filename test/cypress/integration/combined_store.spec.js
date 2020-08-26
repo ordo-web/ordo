@@ -1,19 +1,25 @@
-describe("Ordo", () => {
-  /**
-  it("Test Single Store with sync reducer", () => {
+describe("Ordo Combined Store", () => {
+  it("Test with sync reducer", () => {
     cy.visit("/");
 
-    cy.get("button").contains("singleStoreSync").click();
+    cy.get("button").contains("combinedStoreSync").click();
     cy.wait(550);
     cy.get("button").contains("Start").click();
 
-    cy.get("h1").contains(10);
+    cy.get("h1").eq(0).should("be.empty");
     cy.wait(500);
-    cy.get("h1").contains(11);
+    cy.get("h1").eq(0).contains(10);
     cy.wait(500);
-    cy.get("h1").contains(10);
+    cy.get("h1").eq(0).should("be.empty");
+    cy.wait(300);
+    cy.get("h1").eq(1).contains(100);
+    cy.wait(300);
+    cy.get("h1").eq(1).contains(1000);
+    cy.wait(300);
+    cy.get("h1").eq(1).contains(100);
   });
 
+  /**
   it("Test Single Store with async reducer", () => {
     cy.visit("/");
 
