@@ -17,7 +17,7 @@ use serde_json::Value;
 use wasm_bindgen::__rt::core::any::Any;
 use wasm_bindgen::__rt::std::collections::HashMap;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::JsFuture;
+use wasm_bindgen_futures::{spawn_local, JsFuture};
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -130,5 +130,16 @@ impl SingleStoreAsyncExample {
         let store: PrimeNode = ordo::create_store(state, reducer, translation);
 
         SingleStoreAsyncExample { _ordo: store }
+    }
+
+    #[wasm_bindgen(js_name = testDispatch)]
+    pub fn test_dispatch(&self) {
+        let ordo = self._ordo.clone();
+        spawn_local(async move {
+            let _ = JsFuture::from(sleep(1500.0)).await;
+            ordo.dispatch(TextAction::REPLACE(String::from("Hello World!")));
+            let _ = JsFuture::from(sleep(500.0)).await;
+            ordo.dispatch(TextAction::RESET);
+        });
     }
 }

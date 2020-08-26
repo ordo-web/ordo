@@ -1,4 +1,5 @@
 describe("Ordo", () => {
+  /**
   it("Test Single Store with sync reducer", () => {
     cy.visit("/");
 
@@ -39,5 +40,5 @@ describe("Ordo", () => {
     cy.get("h1").contains("Hello World!");
     cy.wait(500);
     cy.get("h1").contains("Hello!");
-  });
+  });*/
 });

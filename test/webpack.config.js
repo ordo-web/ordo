@@ -113,6 +113,7 @@ module.exports = (args, options) => {
 
   const singleStoreSync = workerBuilder("singleStoreSync");
   const singleStoreAsync = workerBuilder("singleStoreAsync");
+  const singleStoreWorker = workerBuilder("singleStoreWorker");
 
-  return [appConfig, singleStoreSync, singleStoreAsync];
+  return [appConfig, singleStoreSync, singleStoreAsync, singleStoreWorker];
 };

@@ -73,6 +73,25 @@ export default class Selector extends React.Component<any, any> {
           });
         });
         break;
+      case "singleStoreWorker":
+        // web worker
+        worker = new Worker("singleStoreWorker.js");
+
+        // @ts-ignore
+        import("../../../ordo_adapter/pkg/ordo_adapter").then(async (ordo) => {
+          const store = new ordo.Node(worker);
+          await store.ready();
+          const testFunc = async () => {};
+          const component = <Text store={store} />;
+
+          this.setState({
+            testName: testName,
+            testFunc: testFunc,
+            store: store,
+            component: component,
+          });
+        });
+        break;
     }
   }
 
@@ -87,6 +106,10 @@ export default class Selector extends React.Component<any, any> {
           <br />
           <button onClick={() => this.selectTest("singleStoreAsync")}>
             singleStoreAsync
+          </button>
+          <br />
+          <button onClick={() => this.selectTest("singleStoreWorker")}>
+            singleStoreWorker
           </button>
         </div>
       );
