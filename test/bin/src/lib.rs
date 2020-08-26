@@ -31,6 +31,15 @@ extern "C" {
     fn log(s: &str);
 }
 
+#[wasm_bindgen(
+    inline_js = "export function sleep(ms) { return new Promise((resolve)=> setTimeout(resolve, ms)); }"
+)]
+extern "C" {
+    fn sleep(ms: f64) -> Promise;
+}
+
+// Single Store
+
 #[state]
 struct CounterState {
     counter: u8,
@@ -92,13 +101,6 @@ pub struct SingleStoreAsyncExample {
     _ordo: PrimeNode,
 }
 
-#[wasm_bindgen(
-    inline_js = "export function sleep(ms) { return new Promise((resolve)=> setTimeout(resolve, ms)); }"
-)]
-extern "C" {
-    fn sleep(ms: f64) -> Promise;
-}
-
 #[wasm_bindgen]
 impl SingleStoreAsyncExample {
     #[wasm_bindgen(constructor)]
@@ -141,5 +143,97 @@ impl SingleStoreAsyncExample {
             let _ = JsFuture::from(sleep(500.0)).await;
             ordo.dispatch(TextAction::RESET);
         });
+    }
+}
+
+// Combined store
+
+#[state]
+struct VecState {
+    vec: Vec<u32>,
+}
+
+#[action]
+enum VecAction {
+    PUSH(u32),
+    POP,
+}
+
+#[state]
+struct StructState {
+    number: SomeFloat,
+}
+
+#[derive(Serialize, Deserialize, Copy, Clone)]
+struct SomeFloat {
+    number: f32,
+}
+
+#[action]
+enum FloatAction {
+    MULTIPLY(f32),
+    DIVIDE(f32),
+}
+
+#[wasm_bindgen]
+pub struct CombinedStoreExample {
+    _ordo: PrimeNode,
+}
+
+#[wasm_bindgen]
+impl CombinedStoreExample {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> CombinedStoreExample {
+        set_panic_hook();
+
+        // Note: The `parse_[action_name]` functions are automatically generated through the
+        // #[action] macro.
+        let translation = connect!(VecAction, parse_VecAction, FloatAction, parse_FloatAction);
+
+        let vec_state = VecState { vec: Vec::new() };
+        let struct_state = StructState {
+            number: SomeFloat { number: 100.0 },
+        };
+
+        let vec_reducer =
+            Reducer::new(Box::new(
+                move |state: VecState, action: VecAction| match action {
+                    VecAction::PUSH(number) => {
+                        let mut vec = state.vec.clone();
+                        vec.push(number);
+                        VecState { vec }
+                    }
+                    VecAction::POP => {
+                        let mut vec = state.vec.clone();
+                        vec.pop();
+                        VecState { vec }
+                    }
+                },
+            ));
+
+        let struct_reducer = Reducer::new(Box::new(
+            move |state: StructState, action: FloatAction| match action {
+                FloatAction::MULTIPLY(number) => StructState {
+                    number: SomeFloat {
+                        number: state.number.number * number,
+                    },
+                },
+                FloatAction::DIVIDE(number) => StructState {
+                    number: SomeFloat {
+                        number: state.number.number / number,
+                    },
+                },
+            },
+        ));
+
+        let store: PrimeNode = ordo::create_combined_store!(
+            translation,
+            (
+                ordo::config!("vecState", vec_state, vec_reducer),
+                ordo::config!("structState", struct_state, struct_reducer)
+            )
+        );
+
+        CombinedStoreExample { _ordo: store }
     }
 }
