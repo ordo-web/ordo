@@ -5,8 +5,8 @@ use ordo;
 use ordo::action::*;
 use ordo::connect;
 use ordo::console_error;
+use ordo::derive::{action, state, Action};
 use ordo::error;
-use ordo_derive::{action, state, Action};
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -305,5 +305,20 @@ impl CombinedStoreAsyncExample {
         );
 
         CombinedStoreAsyncExample { _ordo: store }
+    }
+
+    #[wasm_bindgen(js_name = testDispatch)]
+    pub fn test_dispatch(&self) {
+        let ordo = self._ordo.clone();
+        spawn_local(async move {
+            let _ = JsFuture::from(sleep(1500.0)).await;
+            ordo.dispatch(VecAction::PUSH(10));
+            let _ = JsFuture::from(sleep(500.0)).await;
+            ordo.dispatch(VecAction::POP);
+            let _ = JsFuture::from(sleep(500.0)).await;
+            ordo.dispatch(FloatAction::MULTIPLY(10.0));
+            let _ = JsFuture::from(sleep(500.0)).await;
+            ordo.dispatch(FloatAction::DIVIDE(10.0));
+        });
     }
 }

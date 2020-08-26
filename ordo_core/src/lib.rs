@@ -1,6 +1,7 @@
 #[macro_use]
 mod macros;
 pub mod action;
+pub mod derive;
 pub mod prime;
 pub mod reducer;
 pub mod store;

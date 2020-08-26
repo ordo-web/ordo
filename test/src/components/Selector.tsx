@@ -163,7 +163,7 @@ export default class Selector extends React.Component<any, any> {
           const store = new ordo.Node(worker);
           await store.ready();
           const testFunc = async () => {};
-          const component = <Text store={store} />;
+          const component = <VecFloat store={store} />;
 
           this.setState({
             testName: testName,
