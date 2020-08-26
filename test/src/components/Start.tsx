@@ -26,10 +26,10 @@ export default class Start extends React.Component<any, any> {
   }
 
   async runOrdoTasks() {
-    await sleep(800);
+    await sleep(500);
     this.props.store.dispatch(CounterAction.increment());
 
-    await sleep(800);
+    await sleep(500);
     this.props.store.dispatch(CounterAction.decrement());
   }
 

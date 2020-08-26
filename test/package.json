@@ -1,11 +1,12 @@
 {
-  "name": "Ordo_testing",
+  "name": "Ordo-Testing",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --mode development  --open --hot",
-    "test1": "./node_modules/.bin/cypress run -- --record --spec \"cypress/integration/single_store_spec.js\"",
+    "start": "webpack-dev-server --mode development --hot",
+    "test1": "start-server-and-test start http://localhost:8080 cy:test1",
+    "cy:test1": "./node_modules/.bin/cypress run -- --record --spec \"cypress/integration/single_store_spec.js\"",
     "cypress:open": "cypress open"
   },
   "keywords": [],
@@ -28,6 +29,7 @@
     "html-webpack-plugin": "^4.3.0",
     "ordo": "file:../ordo/ordo_js",
     "source-map-loader": "^1.0.1",
+    "start-server-and-test": "^1.11.3",
     "style-loader": "^1.2.1",
     "ts-loader": "^7.0.5",
     "tslint": "^6.1.2",
