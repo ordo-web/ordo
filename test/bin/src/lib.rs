@@ -237,3 +237,73 @@ impl CombinedStoreExample {
         CombinedStoreExample { _ordo: store }
     }
 }
+
+#[wasm_bindgen]
+pub struct CombinedStoreAsyncExample {
+    _ordo: PrimeNode,
+}
+
+#[wasm_bindgen]
+impl CombinedStoreAsyncExample {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> CombinedStoreAsyncExample {
+        set_panic_hook();
+
+        // Note: The `parse_[action_name]` functions are automatically generated through the
+        // #[action] macro.
+        let translation = connect!(VecAction, parse_VecAction, FloatAction, parse_FloatAction);
+
+        let vec_state = VecState { vec: Vec::new() };
+        let struct_state = StructState {
+            number: SomeFloat { number: 100.0 },
+        };
+
+        let vec_reducer =
+            Reducer::new_async(Box::new(move |state: VecState, action: VecAction| {
+                Box::new(async move {
+                    let _ = JsFuture::from(sleep(1.0)).await;
+                    match action {
+                        VecAction::PUSH(number) => {
+                            let mut vec = state.vec.clone();
+                            vec.push(number);
+                            VecState { vec }
+                        }
+                        VecAction::POP => {
+                            let mut vec = state.vec.clone();
+                            vec.pop();
+                            VecState { vec }
+                        }
+                    }
+                })
+            }));
+
+        let struct_reducer =
+            Reducer::new_async(Box::new(move |state: StructState, action: FloatAction| {
+                Box::new(async move {
+                    let _ = JsFuture::from(sleep(1.0)).await;
+                    match action {
+                        FloatAction::MULTIPLY(number) => StructState {
+                            number: SomeFloat {
+                                number: state.number.number * number,
+                            },
+                        },
+                        FloatAction::DIVIDE(number) => StructState {
+                            number: SomeFloat {
+                                number: state.number.number / number,
+                            },
+                        },
+                    }
+                })
+            }));
+
+        let store: PrimeNode = ordo::create_combined_store!(
+            translation,
+            (
+                ordo::config!("vecState", vec_state, vec_reducer),
+                ordo::config!("structState", struct_state, struct_reducer)
+            )
+        );
+
+        CombinedStoreAsyncExample { _ordo: store }
+    }
+}

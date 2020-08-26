@@ -136,11 +136,15 @@ export default class Selector extends React.Component<any, any> {
           await store.ready();
           const testFunc = async (store: any) => {
             await sleep(500);
-            store.dispatch(TextAction.replace("Hello World!"));
+            store.dispatch(VecAction.push(10));
             await sleep(500);
-            store.dispatch(TextAction.reset());
+            store.dispatch(VecAction.pop());
+            await sleep(500);
+            store.dispatch(FloatAction.multiply(10.0));
+            await sleep(500);
+            store.dispatch(FloatAction.divide(10.0));
           };
-          const component = <Text store={store} />;
+          const component = <VecFloat store={store} />;
 
           this.setState({
             testName: testName,
