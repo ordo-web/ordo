@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "module": "esnext",
+        "target": "esnext",
+        "jsx": "react",
+        "lib": [
+            "webworker",
+            "DOM", "ES6" , "DOM.Iterable", "ScriptHost"
+        ]
+    },
+    "include": [
+        "../../ordo_adapter/pkg/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
