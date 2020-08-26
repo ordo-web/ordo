@@ -25,12 +25,8 @@ export default class Start extends React.Component<any, any> {
     }
   }
 
-  async runOrdoTasks() {
-    await sleep(500);
-    this.props.store.dispatch(CounterAction.increment());
-
-    await sleep(500);
-    this.props.store.dispatch(CounterAction.decrement());
+  runOrdoTasks() {
+    this.props.testFunc(this.props.store);
   }
 
   render() {
@@ -38,7 +34,7 @@ export default class Start extends React.Component<any, any> {
     if (!this.state.initialized) {
       render = <button onClick={this.handleClick}>Start</button>;
     } else {
-      render = <Counter store={this.props.store} />;
+      render = this.props.component;
     }
 
     return <div>{render}</div>;

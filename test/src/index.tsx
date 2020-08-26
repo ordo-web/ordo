@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import Start from "./components/Start";
+import Selector from "./components/Selector";
 
+/**
 // web worker
 const worker = new Worker("worker.js");
 
@@ -15,4 +16,9 @@ import("../../ordo_adapter/pkg/ordo_adapter").then(async (ordo) => {
     <Start compiler="TypeScript" framework="React" store={store} />,
     document.getElementById("root")
   );
-});
+});*/
+
+ReactDOM.render(
+  <Selector compiler="TypeScript" framework="React" />,
+  document.getElementById("root")
+);
