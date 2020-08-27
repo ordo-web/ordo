@@ -1,0 +1,33 @@
+{
+  "name": "ordo_react",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/ordo-react.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ordo-web/ordo.git"
+  },
+  "author": "Kacper Urbaniec <at.kacper.urbaniec@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ordo-web/ordo/issues"
+  },
+  "homepage": "https://github.com/ordo-web/ordo#readme",
+  "peerDependencies": {
+    "react": "^16.13.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.48",
+    "react": "^16.13.1",
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "prop-types": "^15.7.2"
+  }
+}
