@@ -1,5 +1,5 @@
 import * as React from "react";
-import { connect } from "react-redux";
+import { connect } from "ordo-react";
 import { addTodo } from "../../bin/ordo-bindings/TodoAction.js";
 //import {TodoEntry} from "../../bin/pkg";
 //import { TodoEntry } from "../../bin/pkg";

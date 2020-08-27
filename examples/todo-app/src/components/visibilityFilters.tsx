@@ -1,6 +1,6 @@
 import * as React from "react";
 import cx from "classnames";
-import { connect } from "react-redux";
+import { connect } from "ordo-react";
 import { setFilter } from "../../bin/ordo-bindings/FilterAction.js";
 import { VISIBILITY_FILTERS } from "../constants";
 

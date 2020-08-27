@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Node } from "ordo_adapter";
-import * as PropTypes from "prop-types"; // ES6
+import * as PropTypes from "prop-types";
 
 type ProviderProps = {
   node: Node;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { connect } from "react-redux";
+import { connect } from "ordo-react";
 import cx from "classnames";
 import { toggleTodo } from "../../bin/ordo-bindings/TodoAction.js";
 
