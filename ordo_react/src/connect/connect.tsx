@@ -11,15 +11,17 @@ export function connect(
 ) {
   return function (WrappedComponent: React.ComponentType) {
     return class HOC extends React.Component<any, any> {
+      unsubscribe: any;
+      constructor(props) {
+        super(props);
+      }
+
       static contextTypes = {
         node: PropTypes.object,
       };
-      unsubscribe: any;
 
       componentDidMount() {
-        this.unsubscribe = this.context.node.subscribe(
-          this.handleChange.bind(this)
-        );
+        this.unsubscribe = this.context.node.subscribe(this.handleChange);
       }
 
       componentWillUnmount() {
@@ -50,9 +52,9 @@ export function connect(
             //console.log("JSON");
             //console.log(mapDispatchToProps);
             for (let key in mapDispatchToProps) {
-              let value = mapDispatchToProps[key];
-              mapDispatchToProps[key] = () => {
-                node.dispatch(value);
+              let func = mapDispatchToProps[key];
+              mapDispatchToProps[key] = (payload) => {
+                node.dispatch(func(payload));
               };
             }
             actualMapDispatchToProps = mapDispatchToProps;
