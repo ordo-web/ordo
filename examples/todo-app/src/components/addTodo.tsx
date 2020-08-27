@@ -1,11 +1,13 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { addTodo } from "../redux/actions";
+import { addTodo } from "../../bin/ordo-bindings/TodoAction.js";
+//import {TodoEntry} from "../../bin/pkg";
+//import { TodoEntry } from "../../bin/pkg";
 
-class AddTodo extends React.Component {
+class AddTodo extends React.Component<any, any> {
   constructor(props) {
     super(props);
-    this.state = { input: "" };
+    this.state = { input: "", nextTodoId: 0 };
   }
 
   updateInput = (input) => {
@@ -13,8 +15,12 @@ class AddTodo extends React.Component {
   };
 
   handleAddTodo = () => {
-    this.props.addTodo(this.state.input);
-    this.setState({ input: "" });
+    const nextTodoId = this.state.nextTodoId + 1;
+    this.props.addTodo({
+      id: this.state.nextTodoId,
+      content: this.state.input,
+    });
+    this.setState({ input: "", nextTodoId: nextTodoId });
   };
 
   render() {

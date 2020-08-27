@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --mode development --hot"
+    "start": "webpack-dev-server --mode development --open --hot"
   },
   "keywords": [],
   "author": "",
@@ -35,8 +35,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.10.5",
+    "classnames": "2.2.6",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-redux": "^7.2.1"
+    "react-dom": "^16.13.1"
   }
 }

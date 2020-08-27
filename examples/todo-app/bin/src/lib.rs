@@ -38,16 +38,47 @@ extern "C" {
     fn sleep(ms: f64) -> Promise;
 }
 
+#[wasm_bindgen]
 #[derive(Serialize, Deserialize, Clone)]
-struct TodoInfo {
-    id: String,
+pub struct TodoEntry {
+    id: u32,
     content: String,
+}
+
+#[wasm_bindgen]
+impl TodoEntry {
+    #[wasm_bindgen(constructor)]
+    pub fn new(id: u32, content: String) -> TodoEntry {
+        TodoEntry { id, content }
+    }
 }
 
 #[action]
 enum TodoAction {
-    AddTodo(TodoInfo),
-    ToggleTodo(String),
+    AddTodo(TodoEntry),
+    ToggleTodo(u32),
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+struct TodoInfo {
+    content: String,
+    completed: bool,
+}
+
+#[state]
+struct TodoState {
+    all_ids: Vec<u32>,
+    by_id: HashMap<u32, TodoInfo>,
+}
+
+#[action]
+enum FilterAction {
+    SetFilter(String),
+}
+
+#[state]
+struct FilterState {
+    filter: String,
 }
 
 #[wasm_bindgen]
@@ -64,312 +95,61 @@ impl TodoApp {
         // Note: The `parse_[action_name]` functions are automatically generated through the
         // #[action] macro.
         let translation = connect!(
-            CounterAction,
-            parse_CounterAction,
             TodoAction,
-            parse_TodoAction
+            parse_TodoAction,
+            FilterAction,
+            parse_FilterAction
         );
 
-        let state = CounterState { counter: 10 };
-
-        let reducer = Reducer::new(Box::new(
-            move |state: CounterState, action: CounterAction| match action {
-                CounterAction::INCREMENT => CounterState {
-                    counter: state.counter + 1,
-                },
-                CounterAction::DECREMENT => CounterState {
-                    counter: state.counter - 1,
-                },
-            },
-        ));
-
-        let store: PrimeNode = ordo::create_store(state, reducer, translation);
-
-        TodoApp { _ordo: store }
-    }
-}
-
-// Single Store
-
-#[state]
-struct CounterState {
-    counter: u8,
-}
-
-#[action]
-enum CounterAction {
-    INCREMENT,
-    DECREMENT,
-}
-
-#[wasm_bindgen]
-pub struct SingleStoreExample {
-    _ordo: PrimeNode,
-}
-
-#[wasm_bindgen]
-impl SingleStoreExample {
-    #[wasm_bindgen(constructor)]
-    pub fn new() -> SingleStoreExample {
-        set_panic_hook();
-
-        // Note: The `parse_[action_name]` functions are automatically generated through the
-        // #[action] macro.
-        let translation = connect!(CounterAction, parse_CounterAction);
-
-        let state = CounterState { counter: 10 };
-
-        let reducer = Reducer::new(Box::new(
-            move |state: CounterState, action: CounterAction| match action {
-                CounterAction::INCREMENT => CounterState {
-                    counter: state.counter + 1,
-                },
-                CounterAction::DECREMENT => CounterState {
-                    counter: state.counter - 1,
-                },
-            },
-        ));
-
-        let store: PrimeNode = ordo::create_store(state, reducer, translation);
-
-        SingleStoreExample { _ordo: store }
-    }
-}
-
-#[state]
-struct TextState {
-    text: String,
-}
-
-#[action]
-enum TextAction {
-    REPLACE(String),
-    RESET,
-}
-
-#[wasm_bindgen]
-pub struct SingleStoreAsyncExample {
-    _ordo: PrimeNode,
-}
-
-#[wasm_bindgen]
-impl SingleStoreAsyncExample {
-    #[wasm_bindgen(constructor)]
-    pub fn new() -> SingleStoreAsyncExample {
-        set_panic_hook();
-
-        // Note: The `parse_[action_name]` functions are automatically generated through the
-        // #[action] macro.
-        let translation = connect!(TextAction, parse_TextAction);
-
-        let state = TextState {
-            text: String::from("Hello!"),
+        let todo_state = TodoState {
+            all_ids: Vec::new(),
+            by_id: HashMap::new(),
         };
 
-        // Glue code is needed for async block
-        // https://www.reddit.com/r/rust/comments/drtxbt/question_how_to_put_async_fn_into_a_map/f6lb4wt?utm_source=share&utm_medium=web2x&context=3
-        let reducer = Reducer::new_async(Box::new(move |state: TextState, action: TextAction| {
-            Box::new(async move {
-                let _ = JsFuture::from(sleep(5.0)).await;
-                match action {
-                    TextAction::REPLACE(replacement) => TextState { text: replacement },
-                    TextAction::RESET => TextState {
-                        text: String::from("Hello!"),
-                    },
-                }
-            })
-        }));
-
-        let store: PrimeNode = ordo::create_store(state, reducer, translation);
-
-        SingleStoreAsyncExample { _ordo: store }
-    }
-
-    #[wasm_bindgen(js_name = testDispatch)]
-    pub fn test_dispatch(&self) {
-        let ordo = self._ordo.clone();
-        spawn_local(async move {
-            let _ = JsFuture::from(sleep(1500.0)).await;
-            ordo.dispatch(TextAction::REPLACE(String::from("Hello World!")));
-            let _ = JsFuture::from(sleep(500.0)).await;
-            ordo.dispatch(TextAction::RESET);
-        });
-    }
-}
-
-// Combined store
-
-#[state]
-struct VecState {
-    vec: Vec<u32>,
-}
-
-#[action]
-enum VecAction {
-    PUSH(u32),
-    POP,
-}
-
-#[state]
-struct StructState {
-    number: SomeFloat,
-}
-
-#[derive(Serialize, Deserialize, Copy, Clone)]
-struct SomeFloat {
-    number: f32,
-}
-
-#[action]
-enum FloatAction {
-    MULTIPLY(f32),
-    DIVIDE(f32),
-}
-
-#[wasm_bindgen]
-pub struct CombinedStoreExample {
-    _ordo: PrimeNode,
-}
-
-#[wasm_bindgen]
-impl CombinedStoreExample {
-    #[wasm_bindgen(constructor)]
-    pub fn new() -> CombinedStoreExample {
-        set_panic_hook();
-
-        // Note: The `parse_[action_name]` functions are automatically generated through the
-        // #[action] macro.
-        let translation = connect!(VecAction, parse_VecAction, FloatAction, parse_FloatAction);
-
-        let vec_state = VecState { vec: Vec::new() };
-        let struct_state = StructState {
-            number: SomeFloat { number: 100.0 },
+        let filter_state = FilterState {
+            filter: String::from("all"),
         };
 
-        let vec_reducer =
+        let todo_reducer =
             Reducer::new(Box::new(
-                move |state: VecState, action: VecAction| match action {
-                    VecAction::PUSH(number) => {
-                        let mut vec = state.vec.clone();
-                        vec.push(number);
-                        VecState { vec }
+                move |state: TodoState, action: TodoAction| match action {
+                    TodoAction::AddTodo(info) => {
+                        let mut all_ids = state.all_ids.clone();
+                        all_ids.push(info.id);
+                        let mut by_id = state.by_id.clone();
+                        by_id.insert(
+                            info.id,
+                            TodoInfo {
+                                content: info.content,
+                                completed: false,
+                            },
+                        );
+                        TodoState { all_ids, by_id }
                     }
-                    VecAction::POP => {
-                        let mut vec = state.vec.clone();
-                        vec.pop();
-                        VecState { vec }
+                    TodoAction::ToggleTodo(id) => {
+                        let mut by_id = state.by_id.clone();
+                        let mut entry = by_id.remove(&id).unwrap();
+                        entry.completed = !entry.completed;
+                        by_id.insert(id, entry);
+                        TodoState { by_id, ..state }
                     }
                 },
             ));
 
-        let struct_reducer = Reducer::new(Box::new(
-            move |state: StructState, action: FloatAction| match action {
-                FloatAction::MULTIPLY(number) => StructState {
-                    number: SomeFloat {
-                        number: state.number.number * number,
-                    },
-                },
-                FloatAction::DIVIDE(number) => StructState {
-                    number: SomeFloat {
-                        number: state.number.number / number,
-                    },
-                },
+        let filter_reducer = Reducer::new(Box::new(
+            move |state: FilterState, action: FilterAction| match action {
+                FilterAction::SetFilter(filter) => FilterState { filter },
             },
         ));
 
         let store: PrimeNode = ordo::create_combined_store!(
             translation,
             (
-                ordo::config!("vecState", vec_state, vec_reducer),
-                ordo::config!("structState", struct_state, struct_reducer)
+                ordo::config!("todos", todo_state, todo_reducer),
+                ordo::config!("visibilityFilter", filter_state, filter_reducer)
             )
         );
 
-        CombinedStoreExample { _ordo: store }
-    }
-}
-
-#[wasm_bindgen]
-pub struct CombinedStoreAsyncExample {
-    _ordo: PrimeNode,
-}
-
-#[wasm_bindgen]
-impl CombinedStoreAsyncExample {
-    #[wasm_bindgen(constructor)]
-    pub fn new() -> CombinedStoreAsyncExample {
-        set_panic_hook();
-
-        // Note: The `parse_[action_name]` functions are automatically generated through the
-        // #[action] macro.
-        let translation = connect!(VecAction, parse_VecAction, FloatAction, parse_FloatAction);
-
-        let vec_state = VecState { vec: Vec::new() };
-        let struct_state = StructState {
-            number: SomeFloat { number: 100.0 },
-        };
-
-        let vec_reducer =
-            Reducer::new_async(Box::new(move |state: VecState, action: VecAction| {
-                Box::new(async move {
-                    let _ = JsFuture::from(sleep(1.0)).await;
-                    match action {
-                        VecAction::PUSH(number) => {
-                            let mut vec = state.vec.clone();
-                            vec.push(number);
-                            VecState { vec }
-                        }
-                        VecAction::POP => {
-                            let mut vec = state.vec.clone();
-                            vec.pop();
-                            VecState { vec }
-                        }
-                    }
-                })
-            }));
-
-        let struct_reducer =
-            Reducer::new_async(Box::new(move |state: StructState, action: FloatAction| {
-                Box::new(async move {
-                    let _ = JsFuture::from(sleep(1.0)).await;
-                    match action {
-                        FloatAction::MULTIPLY(number) => StructState {
-                            number: SomeFloat {
-                                number: state.number.number * number,
-                            },
-                        },
-                        FloatAction::DIVIDE(number) => StructState {
-                            number: SomeFloat {
-                                number: state.number.number / number,
-                            },
-                        },
-                    }
-                })
-            }));
-
-        let store: PrimeNode = ordo::create_combined_store!(
-            translation,
-            (
-                ordo::config!("vecState", vec_state, vec_reducer),
-                ordo::config!("structState", struct_state, struct_reducer)
-            )
-        );
-
-        CombinedStoreAsyncExample { _ordo: store }
-    }
-
-    #[wasm_bindgen(js_name = testDispatch)]
-    pub fn test_dispatch(&self) {
-        let ordo = self._ordo.clone();
-        spawn_local(async move {
-            let _ = JsFuture::from(sleep(1500.0)).await;
-            ordo.dispatch(VecAction::PUSH(10));
-            let _ = JsFuture::from(sleep(500.0)).await;
-            ordo.dispatch(VecAction::POP);
-            let _ = JsFuture::from(sleep(500.0)).await;
-            ordo.dispatch(FloatAction::MULTIPLY(10.0));
-            let _ = JsFuture::from(sleep(500.0)).await;
-            ordo.dispatch(FloatAction::DIVIDE(10.0));
-        });
+        TodoApp { _ordo: store }
     }
 }

@@ -60,9 +60,10 @@ pub fn generate_js_actions(name: &Ident, data: &DataEnum) {
 
 // Generates the js binding for an action.
 fn generate_code(enum_name: &str, name: &str, has_param: bool) -> String {
+    let func_name = build_func_name(name.clone());
     if has_param {
         let mut action = String::from("export const ");
-        action.push_str(&name.to_lowercase());
+        action.push_str(&func_name);
         action.push_str(" = (payload) => {\n   return {\n      ident: '");
         action.push_str(enum_name);
         action.push_str("',\n      action: {\n");
@@ -72,7 +73,7 @@ fn generate_code(enum_name: &str, name: &str, has_param: bool) -> String {
         action
     } else {
         let mut action = String::from("export const ");
-        action.push_str(&name.to_lowercase());
+        action.push_str(&func_name);
         action.push_str(" = () => {\n   return {\n      ident: '");
         action.push_str(enum_name);
         action.push_str("',\n      action: {\n");
@@ -80,6 +81,20 @@ fn generate_code(enum_name: &str, name: &str, has_param: bool) -> String {
         action.push_str(&name);
         action.push_str("',\n      }\n   }\n};\n\n");
         action
+    }
+}
+
+fn build_func_name(name: &str) -> String {
+    if name.to_uppercase().eq(name) {
+        name.to_lowercase()
+    } else {
+        // De-Capitalize first letter
+        // Src: https://stackoverflow.com/a/38406885/12347616
+        let mut c = name.chars();
+        match c.next() {
+            None => String::new(),
+            Some(f) => f.to_lowercase().collect::<String>() + c.as_str(),
+        }
     }
 }
 
