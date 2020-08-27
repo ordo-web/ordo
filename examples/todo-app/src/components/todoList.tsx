@@ -1,9 +1,9 @@
 import * as React from "react";
 import { connect } from "ordo-react";
 import Todo from "./Todo";
-// import { getTodos } from "../redux/selectors";
+//import { getTodos } from "../redux/selectors";
 import { getTodosByVisibilityFilter } from "../redux/selectors";
-import { VISIBILITY_FILTERS } from "../constants";
+//import { VISIBILITY_FILTERS } from "../constants";
 
 const TodoList = ({ todos }) => (
   <ul className="todo-list">

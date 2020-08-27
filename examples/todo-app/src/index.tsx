@@ -10,10 +10,11 @@ import("../../../ordo_adapter/pkg/ordo_adapter").then(async (ordo) => {
   const node = new ordo.Node(ordoCore);
   await node.ready();
 
+  /**
   node.subscribe(() => {
     const state = node.getState();
     console.log(state);
-  });
+  });*/
   //node.dispatch(addTodo({ id: 10, content: "abc" }));
 
   ReactDOM.render(

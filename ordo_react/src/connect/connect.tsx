@@ -14,6 +14,7 @@ export function connect(
       unsubscribe: any;
       constructor(props) {
         super(props);
+        this.handleChange = this.handleChange.bind(this);
       }
 
       static contextTypes = {
@@ -29,6 +30,7 @@ export function connect(
       }
 
       handleChange() {
+        console.log("Hey!");
         this.forceUpdate();
       }
 

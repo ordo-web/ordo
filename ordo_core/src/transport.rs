@@ -56,6 +56,8 @@ impl Transport {
             if node.initialized() {
                 match data.into_serde::<Value>() {
                     Ok(mut data) => {
+                        // TODO error handling
+                        // panicked at 'called `Option::unwrap()` on a `None` value', C:\Arbeit\_ordo\ordo\ordo_core\src\transport.rs:60:52
                         let ident = data["ident"].take();
                         let ident = ident.as_str().unwrap();
                         let action = data["action"].take();
