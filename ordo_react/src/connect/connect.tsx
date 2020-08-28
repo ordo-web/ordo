@@ -55,13 +55,13 @@ export function connect(
             // Parse single value and multi value JSON
             //console.log("JSON");
             //console.log(mapDispatchToProps);
+            actualMapDispatchToProps = {};
             for (let key in mapDispatchToProps) {
               let func = mapDispatchToProps[key];
-              mapDispatchToProps[key] = function (payload) {
+              actualMapDispatchToProps[key] = function (payload) {
                 node.dispatch(func(payload));
               };
             }
-            actualMapDispatchToProps = mapDispatchToProps;
           }
         } else {
           actualMapDispatchToProps = mapDispatchToProps(
