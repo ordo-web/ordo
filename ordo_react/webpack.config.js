@@ -1,5 +1,6 @@
 const path = require("path");
 
+// TODO remove devtool: "inline-source-map" in prod build
 module.exports = {
   entry: "./src/index.ts",
   mode: "production",
@@ -20,8 +21,5 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     filename: "ordo-react.js",
     libraryTarget: "umd",
-  },
-  externals: {
-    react: "react",
   },
 };

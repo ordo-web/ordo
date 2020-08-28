@@ -20,14 +20,14 @@
     "react": "^16.13.1"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.160",
     "@types/react": "^16.9.48",
+    "lodash": "^4.17.20",
+    "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "ts-loader": "^8.0.3",
     "typescript": "^4.0.2",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
-  },
-  "dependencies": {
-    "prop-types": "^15.7.2"
   }
 }
