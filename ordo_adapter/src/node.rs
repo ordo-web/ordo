@@ -1,8 +1,11 @@
 use crate::adapter::Adapter;
 use crate::adapter::AdapterNode;
+use crate::log;
 use crate::sleep;
 use crate::utils::set_panic_hook;
+use js_sys::Array;
 use js_sys::Function;
+use js_sys::Object;
 use js_sys::Promise;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::{future_to_promise, JsFuture};
@@ -31,7 +34,20 @@ impl Node {
     }
 
     pub fn dispatch(&self, action: JsValue) {
-        self.adapter.dispatch(action);
+        // Check if action is conform
+        match js_sys::Object::try_from(&action) {
+            Some(obj) => {
+                let keys: Array = js_sys::Object::keys(&obj);
+                let found_ident = keys.index_of(&JsValue::from("ident"), 0);
+                let found_action = keys.index_of(&JsValue::from("action"), 0);
+                if found_ident != -1 && found_action != -1 {
+                    self.adapter.dispatch(action);
+                }
+            }
+            None => {
+                console_log!("The given action {:?} does not match the specs. Did you use the generated bindings?", &action)
+            }
+        }
     }
 
     pub fn subscribe(&self, subscription: Function) {

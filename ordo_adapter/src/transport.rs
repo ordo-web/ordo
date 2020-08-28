@@ -2,7 +2,6 @@ use crate::adapter::AdapterNode;
 use crate::log;
 use crate::utils::uint8array_to_value;
 use js_sys::Uint8Array;
-use serde_json::Value;
 use wasm_bindgen::__rt::core::cell::{Ref, RefCell};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
@@ -46,6 +45,9 @@ impl Transport {
     }
 
     pub(crate) fn send_value(&self, data: JsValue) {
+        // TODO parse to Uint8Array?
+        // TODO check for fields name?
+
         let res = self.ctx.post_message(&data);
         match res {
             Ok(_) => {}

@@ -11,7 +11,6 @@ export function connect(
 ) {
   return function (WrappedComponent: React.ComponentType) {
     return class HOC extends React.Component<any, any> {
-      unsubscribe: any;
       constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
@@ -22,11 +21,11 @@ export function connect(
       };
 
       componentDidMount() {
-        this.unsubscribe = this.context.node.subscribe(this.handleChange);
+        this.context.node.subscribe(this.handleChange);
       }
 
       componentWillUnmount() {
-        this.unsubscribe();
+        this.context.node.unsubscribe(this.handleChange);
       }
 
       handleChange() {
@@ -48,14 +47,17 @@ export function connect(
         let actualMapDispatchToProps: Object;
         if (typeof mapDispatchToProps !== "function") {
           if (mapDispatchToProps === null || mapDispatchToProps === undefined) {
-            actualMapDispatchToProps = node.dispatch;
+            /**actualMapDispatchToProps = {
+              dispatch: node.dispatch,
+            };*/
+            actualMapDispatchToProps = {};
           } else {
             // Parse single value and multi value JSON
             //console.log("JSON");
             //console.log(mapDispatchToProps);
             for (let key in mapDispatchToProps) {
               let func = mapDispatchToProps[key];
-              mapDispatchToProps[key] = (payload) => {
+              mapDispatchToProps[key] = function (payload) {
                 node.dispatch(func(payload));
               };
             }
