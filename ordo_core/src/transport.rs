@@ -22,7 +22,6 @@ pub(crate) struct Transport {
 impl Transport {
     pub(crate) fn new(node: PrimeNode) -> Transport {
         let ctx = Rc::new(Worker::from(JsValue::from(js_sys::global())));
-        //let _ = ctx.post_message(&JsValue::from("CTX here speaking")); // TODO remove later
 
         let initialized = RefCell::new(false);
 
@@ -57,7 +56,7 @@ impl Transport {
                 match data.into_serde::<Value>() {
                     Ok(mut data) => {
                         // TODO error handling
-                        // panicked at 'called `Option::unwrap()` on a `None` value', C:\Arbeit\_ordo\ordo\ordo_core\src\transport.rs:60:52
+                        // panicked at 'called `Option::unwrap()` on a `None` value', ordo_core\src\transport.rs:60:52
                         let ident = data["ident"].take();
                         let ident = ident.as_str().unwrap();
                         let action = data["action"].take();
