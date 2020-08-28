@@ -68,7 +68,7 @@ struct TodoInfo {
 #[state]
 struct TodoState {
     all_ids: Vec<u32>,
-    by_id: HashMap<u32, TodoInfo>,
+    by_ids: HashMap<u32, TodoInfo>,
 }
 
 #[action]
@@ -103,7 +103,7 @@ impl TodoApp {
 
         let todo_state = TodoState {
             all_ids: Vec::new(),
-            by_id: HashMap::new(),
+            by_ids: HashMap::new(),
         };
 
         let filter_state = FilterState {
@@ -116,22 +116,22 @@ impl TodoApp {
                     TodoAction::AddTodo(info) => {
                         let mut all_ids = state.all_ids.clone();
                         all_ids.push(info.id);
-                        let mut by_id = state.by_id.clone();
-                        by_id.insert(
+                        let mut by_ids = state.by_ids.clone();
+                        by_ids.insert(
                             info.id,
                             TodoInfo {
                                 content: info.content,
                                 completed: false,
                             },
                         );
-                        TodoState { all_ids, by_id }
+                        TodoState { all_ids, by_ids }
                     }
                     TodoAction::ToggleTodo(id) => {
-                        let mut by_id = state.by_id.clone();
-                        let mut entry = by_id.remove(&id).unwrap();
+                        let mut by_ids = state.by_ids.clone();
+                        let mut entry = by_ids.remove(&id).unwrap();
                         entry.completed = !entry.completed;
-                        by_id.insert(id, entry);
-                        TodoState { by_id, ..state }
+                        by_ids.insert(id, entry);
+                        TodoState { by_ids, ..state }
                     }
                 },
             ));
