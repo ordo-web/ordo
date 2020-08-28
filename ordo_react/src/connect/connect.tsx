@@ -3,11 +3,6 @@ import { Node } from "ordo_adapter";
 import * as PropTypes from "prop-types";
 import { isEqual } from "lodash";
 
-/**mapStateToProps?: null | ((state: Object, ownProps?: any) => Object),
- mapDispatchToProps?:
- | null
- | Object
- | ((dispatch: Object, ownProps?: any) => Object)*/
 export function connect(mapStateToProps?: any, mapDispatchToProps?: any) {
   return function (WrappedComponent: React.ComponentType) {
     return class HOC extends React.Component<any, any> {
@@ -76,50 +71,6 @@ export function connect(mapStateToProps?: any, mapDispatchToProps?: any) {
       }
 
       render() {
-        /**
-         const node: Node = this.context.node;
-         const state = node.getState();
-        let actualMapStateToProps: Object;
-        if (typeof mapStateToProps !== "function") {
-          actualMapStateToProps = {};
-        } else {
-          actualMapStateToProps = mapStateToProps(state, this.props);
-        }
-
-        let actualMapDispatchToProps: Object;
-        if (typeof mapDispatchToProps !== "function") {
-          if (mapDispatchToProps === null || mapDispatchToProps === undefined) {
-            actualMapDispatchToProps = {
-              dispatch: node.dispatch,
-            };
-            actualMapDispatchToProps = {};
-          } else {
-            // Parse single value and multi value JSON
-            actualMapDispatchToProps = {};
-            for (let key in mapDispatchToProps) {
-              let func = mapDispatchToProps[key];
-              actualMapDispatchToProps[key] = function (payload) {
-                node.dispatch(func(payload));
-              };
-            }
-          }
-        } else {
-          actualMapDispatchToProps = mapDispatchToProps(
-            node.dispatch,
-            this.props
-          );
-        }
-
-        //console.log("baumi");
-        //console.log(actualMapStateToProps, actualMapDispatchToProps);
-
-        return (
-          <WrappedComponent
-            {...this.props}
-            {...actualMapStateToProps}
-            {...actualMapDispatchToProps}
-          />
-        );*/
         return (
           <WrappedComponent
             {...this.props}
