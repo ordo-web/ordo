@@ -10,6 +10,7 @@ use web_sys::MessageEvent;
 use web_sys::Worker;
 
 pub(crate) struct Transport {
+    #[allow(dead_code)]
     node: AdapterNode,
     ctx: Rc<Worker>,
     initialized: RefCell<bool>,
@@ -34,6 +35,8 @@ impl Transport {
         }
     }
 
+    // TODO delete?
+    #[allow(dead_code)]
     pub(crate) fn send(&self, data: Uint8Array) {
         let res = self.ctx.post_message(&data);
         match res {
@@ -57,7 +60,7 @@ impl Transport {
         }
     }
 
-    fn build_onmessage(node: AdapterNode, ctx: Rc<Worker>) -> Closure<dyn FnMut(MessageEvent)> {
+    fn build_onmessage(node: AdapterNode, _ctx: Rc<Worker>) -> Closure<dyn FnMut(MessageEvent)> {
         let node = node.clone();
 
         Closure::wrap(Box::new(move |event: MessageEvent| {

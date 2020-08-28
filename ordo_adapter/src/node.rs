@@ -5,7 +5,6 @@ use crate::sleep;
 use crate::utils::set_panic_hook;
 use js_sys::Array;
 use js_sys::Function;
-use js_sys::Object;
 use js_sys::Promise;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::{future_to_promise, JsFuture};

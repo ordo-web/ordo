@@ -47,14 +47,12 @@ export function connect(
         let actualMapDispatchToProps: Object;
         if (typeof mapDispatchToProps !== "function") {
           if (mapDispatchToProps === null || mapDispatchToProps === undefined) {
-            /**actualMapDispatchToProps = {
+            actualMapDispatchToProps = {
               dispatch: node.dispatch,
-            };*/
+            };
             actualMapDispatchToProps = {};
           } else {
             // Parse single value and multi value JSON
-            //console.log("JSON");
-            //console.log(mapDispatchToProps);
             actualMapDispatchToProps = {};
             for (let key in mapDispatchToProps) {
               let func = mapDispatchToProps[key];
