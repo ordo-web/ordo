@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.160",
     "@types/react": "^16.9.48",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "ts-loader": "^8.0.3",
